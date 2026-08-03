@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">AMASAMYA</string>
+    <string name="accessibility_service_description">AMASAMYA automated accessibility testing engine. Used to run background audits for touch target sizes, content labeling, visual contrast, reading order, and layout structures offline.</string>
+    <string name="accessibility_button_summary">Start or stop scanning the current screen for accessibility compliance audits</string>
+</resources>
