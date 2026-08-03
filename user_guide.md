@@ -14,7 +14,9 @@ Welcome to the **AMASAMYA User Manual**. AMASAMYA is a blind-first, offline-firs
 7. [Hands-Free Voice Commands](#7-hands-free-voice-commands)
 8. [Guided TalkBack Simulator Mode](#8-guided-talkback-simulator-mode)
 9. [Exporting Reports](#9-exporting-reports)
-10. [Data Privacy & Offline Security](#10-data-privacy--offline-security)
+10. [ADB Command Line Bridge (Port 8080)](#10-adb-command-line-bridge-port-8080)
+11. [Troubleshooting Matrix](#11-troubleshooting-matrix)
+12. [Data Privacy & Offline Security](#12-data-privacy--offline-security)
 
 ---
 
@@ -128,7 +130,33 @@ All exported files are saved to your device's Documents folder and can be shared
 
 ---
 
-## 10. Data Privacy & Offline Security
+## 10. ADB Command Line Bridge (Port 8080)
+
+AMASAMYA includes a local ADB server for automated CLI extraction:
+
+1. Enable **ADB Report Server** in Settings.
+2. Connect your device via USB / ADB and set up port forwarding:
+   ```bash
+   adb forward tcp:8080 tcp:8080
+   ```
+3. Fetch the latest audit results via curl or HTTP:
+   ```bash
+   curl http://localhost:8080/report
+   ```
+
+---
+
+## 11. Troubleshooting Matrix
+
+| Issue | Root Cause | Solution |
+| :--- | :--- | :--- |
+| **Floating button not visible** | Display over other apps permission off | Open Android Settings -> Apps -> Special App Access -> Display Over Other Apps -> Enable AMASAMYA. |
+| **Voice commands not responding** | Microphone permission missing | Open App Info -> Permissions -> Allow Microphone access. |
+| **Overlay drawing lag** | Battery saver mode active | Exclude AMASAMYA from battery optimization settings. |
+
+---
+
+## 12. Data Privacy & Offline Security
 
 AMASAMYA operates **100% offline**:
 * Zero internet permission required for auditing engines.
