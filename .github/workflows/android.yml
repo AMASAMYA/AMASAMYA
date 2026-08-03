@@ -3,12 +3,13 @@ name: AMASAMYA CI/CD Build & Test Pipeline
 on:
   push:
     branches: [ "main", "master" ]
+    tags: [ "v*" ]
   pull_request:
     branches: [ "main", "master" ]
 
 jobs:
   build:
-    name: Build & Run Unit Tests
+    name: Build, Test & Package
     runs-on: ubuntu-latest
 
     steps:
@@ -25,10 +26,15 @@ jobs:
       - name: Grant Execute Permission for Gradle Wrapper
         run: chmod +x amasamya/gradlew
 
-      - name: Run Unit Tests
+      - name: Run Unit Tests & Accessibility Rule Validations
         run: |
           cd amasamya
           ./gradlew testDebugUnitTest --stacktrace
+
+      - name: Run Android Lint Check
+        run: |
+          cd amasamya
+          ./gradlew lintDebug --stacktrace
 
       - name: Build Debug APK
         run: |
@@ -51,3 +57,4 @@ jobs:
         with:
           name: AMASAMYA-Release-AppBundle
           path: amasamya/app/build/outputs/bundle/release/app-release.aab
+
