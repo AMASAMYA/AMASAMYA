@@ -1206,7 +1206,7 @@ fun SettingsScreen(
                                 color = PureWhite.copy(alpha = 0.8f)
                             )
                             Text(
-                                text = "• Open Source: The codebase is fully transparent and inspectable on GitHub at github.com/accessitestai/AMASAMYA.",
+                                text = "• Open Source: The codebase is fully transparent and inspectable on GitHub at github.com/AMASAMYA/AMASAMYA.",
                                 fontSize = 13.sp,
                                 color = PureWhite.copy(alpha = 0.8f)
                             )

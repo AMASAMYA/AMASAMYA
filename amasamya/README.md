@@ -83,7 +83,7 @@ Simulate TalkBack focus rings, navigation order, and spoken announcements direct
 
 ```bash
 # Clone the repository
-git clone https://github.com/accessitestai/AMASAMYA.git
+git clone https://github.com/AMASAMYA/AMASAMYA.git
 cd AMASAMYA/amasamya
 
 # Run Unit Tests
