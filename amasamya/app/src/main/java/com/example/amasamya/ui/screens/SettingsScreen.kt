@@ -1,5 +1,8 @@
 package com.example.amasamya.ui.screens
 
+import android.content.Intent
+import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -1014,7 +1017,111 @@ fun SettingsScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Heading: Beta Tester Feedback & Review
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    text = "Beta Tester Feedback & Review",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = VibrantCyan,
+                    modifier = Modifier.semantics { heading() }
+                )
+                Text(
+                    text = "Provide feedback directly to help us meet Google Play testing engagement requirements.",
+                    color = TextSecondary,
+                    fontSize = 14.sp
+                )
+            }
+
+            Surface(
+                color = GlassySurface,
+                shape = RoundedCornerShape(12.dp),
+                border = BorderStroke(1.dp, VibrantCyan.copy(alpha = 0.5f)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = "💬 Send Direct Feedback to Developer",
+                        fontWeight = FontWeight.Bold,
+                        color = PureWhite,
+                        fontSize = 16.sp
+                    )
+                    Text(
+                        text = "Found an accessibility bug or have a suggestion? Send your notes to our dev team directly.",
+                        color = TextSecondary,
+                        fontSize = 13.sp
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Button(
+                            onClick = {
+                                try {
+                                    val intent = Intent(Intent.ACTION_SENDTO).apply {
+                                        data = Uri.parse("mailto:accessitestai@gmail.com")
+                                        putExtra(Intent.EXTRA_SUBJECT, "AMASAMYA Beta Tester Feedback (v1.0.6)")
+                                        putExtra(Intent.EXTRA_TEXT, "Hello AMASAMYA Team,\n\nHere is my feedback on the app:\n\n")
+                                    }
+                                    context.startActivity(Intent.createChooser(intent, "Send Tester Feedback"))
+                                } catch (e: Exception) {
+                                    Toast.makeText(context, "Could not open email client.", Toast.LENGTH_SHORT).show()
+                                }
+                            },
+                            shape = RoundedCornerShape(8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = VibrantCyan,
+                                contentColor = DeepSpace
+                            ),
+                            modifier = Modifier
+                                .weight(1f)
+                                .semantics {
+                                    role = Role.Button
+                                    contentDescription = "Send feedback via email to developer team"
+                                }
+                        ) {
+                            Text("Email Feedback", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                        }
+
+                        Button(
+                            onClick = {
+                                try {
+                                    val appPackageName = context.packageName
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$appPackageName"))
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                    context.startActivity(intent)
+                                } catch (e: Exception) {
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=${context.packageName}"))
+                                    context.startActivity(intent)
+                                }
+                            },
+                            shape = RoundedCornerShape(8.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF2C3246),
+                                contentColor = PureWhite
+                            ),
+                            border = BorderStroke(1.dp, VibrantCyan),
+                            modifier = Modifier
+                                .weight(1f)
+                                .semantics {
+                                    role = Role.Button
+                                    contentDescription = "Open Google Play Store feedback page"
+                                }
+                        ) {
+                            Text("Play Store Review", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             var showPrivacyDialog by remember { mutableStateOf(false) }
 
