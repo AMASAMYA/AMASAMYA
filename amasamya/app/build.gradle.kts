@@ -23,12 +23,15 @@ android {
         localPropertiesFile.reader().use { localProperties.load(it) }
     }
 
+    val releaseKeystoreFile = file("release.keystore")
     signingConfigs {
-        create("release") {
-            storeFile = file("release.keystore")
-            storePassword = localProperties.getProperty("amasamya.keystore.password") ?: ""
-            keyAlias = localProperties.getProperty("amasamya.key.alias") ?: ""
-            keyPassword = localProperties.getProperty("amasamya.key.password") ?: ""
+        if (releaseKeystoreFile.exists()) {
+            create("release") {
+                storeFile = releaseKeystoreFile
+                storePassword = localProperties.getProperty("amasamya.keystore.password") ?: ""
+                keyAlias = localProperties.getProperty("amasamya.key.alias") ?: ""
+                keyPassword = localProperties.getProperty("amasamya.key.password") ?: ""
+            }
         }
     }
 
@@ -36,7 +39,7 @@ android {
         release {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            signingConfig = signingConfigs.getByName("release")
+            signingConfig = if (releaseKeystoreFile.exists()) signingConfigs.getByName("release") else signingConfigs.getByName("debug")
         }
     }
     compileOptions {
