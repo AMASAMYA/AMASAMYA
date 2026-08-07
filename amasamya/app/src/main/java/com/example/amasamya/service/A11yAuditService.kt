@@ -1196,10 +1196,12 @@ class A11yAuditService : AccessibilityService(), TextToSpeech.OnInitListener {
                     info.isLongClickable = true
                     info.addAction(android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction.ACTION_CLICK)
                     info.addAction(android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction.ACTION_LONG_CLICK)
-                    if (currentSessionId != null) {
-                        info.stateDescription = "Active session recording. Double tap to scan. Double tap and hold to stop session."
-                    } else {
-                        info.stateDescription = "Ready to start session. Double tap to start session."
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        if (currentSessionId != null) {
+                            info.stateDescription = "Active session recording. Double tap to scan. Double tap and hold to stop session."
+                        } else {
+                            info.stateDescription = "Ready to start session. Double tap to start session."
+                        }
                     }
                 }
 
