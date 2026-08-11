@@ -61,6 +61,7 @@ fun SettingsScreen(
     var selectedStandard by remember { mutableStateOf(settingsManager.complianceStandard) }
     var voiceCommandsEnabled by remember { mutableStateOf(settingsManager.isVoiceCommandsEnabled) }
     var simulatorModeEnabled by remember { mutableStateOf(settingsManager.isSimulatorModeEnabled) }
+    var selectedCvdMode by remember { mutableStateOf(settingsManager.cvdSimulationMode) }
 
     LaunchedEffect(Unit) {
         val manager = context.getSystemService(android.content.Context.ACCESSIBILITY_SERVICE) as android.view.accessibility.AccessibilityManager
@@ -1014,6 +1015,102 @@ fun SettingsScreen(
                             uncheckedTrackColor = Color(0xFF2C3246)
                         )
                     )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // 8. Color Vision Deficiency Simulator
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    text = "Color Vision Deficiency Simulator",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = VibrantCyan,
+                    modifier = Modifier.semantics { heading() }
+                )
+                Text(
+                    text = "Simulate real-time vision deficiencies (Protanopia, Deuteranopia, Tritanopia, Monochromacy) over target apps.",
+                    color = TextSecondary,
+                    fontSize = 14.sp
+                )
+            }
+
+            val cvdOptions = listOf(
+                SettingsManager.CVD_NONE to "Normal Vision (No Simulation)",
+                SettingsManager.CVD_PROTANOPIA to "Protanopia (Red-Blindness / L-cone deficiency)",
+                SettingsManager.CVD_DEUTERANOPIA to "Deuteranopia (Green-Blindness / M-cone deficiency)",
+                SettingsManager.CVD_TRITANOPIA to "Tritanopia (Blue-Blindness / S-cone deficiency)",
+                SettingsManager.CVD_MONOCHROMACY to "Monochromacy (Achromatopsia / Full Grayscale)"
+            )
+
+            Column(
+                modifier = Modifier
+                    .selectableGroup()
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                cvdOptions.forEach { (mode, description) ->
+                    val isSelected = selectedCvdMode == mode
+                    Button(
+                        onClick = {
+                            selectedCvdMode = mode
+                            settingsManager.cvdSimulationMode = mode
+                            com.example.amasamya.service.A11yAuditService.instance?.updateDiagnosticsState()
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = GlassySurface,
+                            contentColor = PureWhite
+                        ),
+                        border = BorderStroke(
+                            width = 1.dp,
+                            color = if (isSelected) VibrantCyan else Color(0xFF2C3246)
+                        ),
+                        contentPadding = PaddingValues(14.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clearAndSetSemantics {
+                                role = Role.RadioButton
+                                selected = isSelected
+                                contentDescription = "Color Vision Deficiency simulation $mode. $description"
+                                onClick(label = "Select $mode vision deficiency simulation") {
+                                    selectedCvdMode = mode
+                                    settingsManager.cvdSimulationMode = mode
+                                    com.example.amasamya.service.A11yAuditService.instance?.updateDiagnosticsState()
+                                    true
+                                }
+                            }
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(14.dp)
+                        ) {
+                            RadioButton(
+                                selected = isSelected,
+                                onClick = null,
+                                colors = RadioButtonDefaults.colors(
+                                    selectedColor = VibrantCyan,
+                                    unselectedColor = LightGrey.copy(alpha = 0.5f)
+                                )
+                            )
+                            Column {
+                                Text(
+                                    text = mode,
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (isSelected) VibrantCyan else PureWhite,
+                                    fontSize = 15.sp
+                                )
+                                Text(
+                                    text = description,
+                                    color = TextSecondary,
+                                    fontSize = 12.sp,
+                                    lineHeight = 16.sp
+                                )
+                            }
+                        }
+                    }
                 }
             }
 

@@ -38,9 +38,22 @@ class SettingsManager(context: Context) {
         const val PERSONA_DESIGNER = "Designer"
         const val PERSONA_PRODUCT_OWNER = "Product Owner"
         const val PERSONA_GENERAL_USER = "General User"
+        const val KEY_CVD_SIMULATION = "cvd_simulation"
+
+        const val CVD_NONE = "None"
+        const val CVD_PROTANOPIA = "Protanopia"
+        const val CVD_DEUTERANOPIA = "Deuteranopia"
+        const val CVD_TRITANOPIA = "Tritanopia"
+        const val CVD_MONOCHROMACY = "Monochromacy"
     }
 
     private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+    var cvdSimulationMode: String
+        get() = prefs.getString(KEY_CVD_SIMULATION, CVD_NONE) ?: CVD_NONE
+        set(value) {
+            prefs.edit().putString(KEY_CVD_SIMULATION, value).apply()
+        }
 
     var wcagLevel: String
         get() = prefs.getString(KEY_WCAG_LEVEL, LEVEL_AA) ?: LEVEL_AA

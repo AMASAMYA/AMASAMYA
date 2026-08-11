@@ -42,6 +42,18 @@ class OverlayCanvasView @JvmOverloads constructor(
     var showFocusTrail = false
     var showTouchTargets = false
     var showCaptions = false
+    var cvdMode: String = com.example.amasamya.settings.SettingsManager.CVD_NONE
+        set(value) {
+            field = value
+            val filter = com.example.amasamya.utils.CvdMatrixFilter.getColorFilter(value)
+            linePaint.colorFilter = filter
+            headPaint.colorFilter = filter
+            targetPaint.colorFilter = filter
+            targetTextPaint.colorFilter = filter
+            textPaint.colorFilter = filter
+            captionBorderPaint.colorFilter = filter
+            postInvalidate()
+        }
 
     private var captionText: String = ""
     private val trailSegments = mutableListOf<TrailSegment>()

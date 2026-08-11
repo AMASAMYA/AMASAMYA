@@ -1060,7 +1060,8 @@ class A11yAuditService : AccessibilityService(), TextToSpeech.OnInitListener {
                 settingsManager.isLiveFocusTrailEnabled ||
                 settingsManager.isTouchTargetMapperEnabled ||
                 settingsManager.isFocusTrapDetectorEnabled ||
-                settingsManager.isContrastDriftScannerEnabled
+                settingsManager.isContrastDriftScannerEnabled ||
+                settingsManager.cvdSimulationMode != com.example.amasamya.settings.SettingsManager.CVD_NONE
 
         if (anyEnabled) {
             showOverlayCanvas()
@@ -1068,6 +1069,7 @@ class A11yAuditService : AccessibilityService(), TextToSpeech.OnInitListener {
                 showFocusTrail = settingsManager.isLiveFocusTrailEnabled
                 showTouchTargets = settingsManager.isTouchTargetMapperEnabled
                 showCaptions = settingsManager.isLiveCaptionsEnabled
+                cvdMode = settingsManager.cvdSimulationMode
                 
                 // Clear active states if disabled
                 if (!showFocusTrail) clearFocusTrail()
