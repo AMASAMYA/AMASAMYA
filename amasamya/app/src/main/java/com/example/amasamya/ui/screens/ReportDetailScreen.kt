@@ -75,6 +75,8 @@ fun ReportDetailScreen(
     var screensWithFocusPaths by remember { mutableStateOf<List<String>>(emptyList()) }
     var selectedPersona by remember { mutableStateOf(settingsManager.reportPersona) }
     var isPersonaDropdownExpanded by remember { mutableStateOf(false) }
+    var showTestExporterDialog by remember { mutableStateOf(false) }
+    var selectedTestFramework by remember { mutableStateOf(com.example.amasamya.utils.TestScriptExporter.TestFramework.JETPACK_COMPOSE) }
 
     LaunchedEffect(sessionId) {
         session = dbHelper.getSession(sessionId)
@@ -446,6 +448,25 @@ fun ReportDetailScreen(
                                     Text("MD", fontSize = 13.sp, fontWeight = FontWeight.Bold)
                                 }
                             }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            // Automated UI Test Exporter Button
+                            Button(
+                                onClick = { showTestExporterDialog = true },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = AmberGold,
+                                    contentColor = DeepSpace
+                                ),
+                                shape = RoundedCornerShape(12.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .semantics {
+                                        contentDescription = "Export automated Compose or Espresso UI test script"
+                                    }
+                            ) {
+                                Text("⚡ Export Automated UI Test Script", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                            }
                         }
                     }
                 }
@@ -540,6 +561,133 @@ fun ReportDetailScreen(
                     Spacer(modifier = Modifier.height(24.dp))
                 }
             }
+        }
+
+        if (showTestExporterDialog && session != null) {
+            val activeSession = session!!
+            val generatedCode = com.example.amasamya.utils.TestScriptExporter.generateFullTestClass(
+                sessionName = activeSession.name,
+                packageName = activeSession.packageName,
+                issues = issues,
+                framework = selectedTestFramework
+            )
+
+            AlertDialog(
+                onDismissRequest = { showTestExporterDialog = false },
+                containerColor = DeepSpace,
+                titleContentColor = PureWhite,
+                textContentColor = TextSecondary,
+                title = {
+                    Text(
+                        text = "⚡ Automated UI Test Script Exporter",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp,
+                        color = VibrantCyan,
+                        modifier = Modifier.semantics { heading() }
+                    )
+                },
+                text = {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "Generated automated regression assertions for all ${issues.size} accessibility issues.",
+                            fontSize = 13.sp,
+                            color = LightGrey
+                        )
+
+                        // Framework Selector Buttons
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Button(
+                                onClick = {
+                                    selectedTestFramework = com.example.amasamya.utils.TestScriptExporter.TestFramework.JETPACK_COMPOSE
+                                },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (selectedTestFramework == com.example.amasamya.utils.TestScriptExporter.TestFramework.JETPACK_COMPOSE) VibrantCyan else GlassySurface,
+                                    contentColor = if (selectedTestFramework == com.example.amasamya.utils.TestScriptExporter.TestFramework.JETPACK_COMPOSE) DeepSpace else PureWhite
+                                ),
+                                shape = RoundedCornerShape(8.dp),
+                                modifier = Modifier.weight(1f).semantics {
+                                    role = Role.RadioButton
+                                    contentDescription = "Jetpack Compose UI Test Framework"
+                                }
+                            ) {
+                                Text("Compose Test", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            }
+
+                            Button(
+                                onClick = {
+                                    selectedTestFramework = com.example.amasamya.utils.TestScriptExporter.TestFramework.ESPRESSO
+                                },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (selectedTestFramework == com.example.amasamya.utils.TestScriptExporter.TestFramework.ESPRESSO) VibrantCyan else GlassySurface,
+                                    contentColor = if (selectedTestFramework == com.example.amasamya.utils.TestScriptExporter.TestFramework.ESPRESSO) DeepSpace else PureWhite
+                                ),
+                                shape = RoundedCornerShape(8.dp),
+                                modifier = Modifier.weight(1f).semantics {
+                                    role = Role.RadioButton
+                                    contentDescription = "Espresso UI Test Framework"
+                                }
+                            ) {
+                                Text("Espresso Test", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+
+                        // Code Preview Box
+                        Surface(
+                            color = MidnightBlue,
+                            shape = RoundedCornerShape(8.dp),
+                            border = BorderStroke(1.dp, Color(0xFF2C3246)),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 240.dp)
+                        ) {
+                            LazyColumn(modifier = Modifier.padding(12.dp)) {
+                                item {
+                                    Text(
+                                        text = generatedCode,
+                                        color = NeonGreen,
+                                        fontSize = 11.sp,
+                                        lineHeight = 15.sp,
+                                        modifier = Modifier.semantics {
+                                            contentDescription = "Generated Kotlin test code preview"
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                            val clip = android.content.ClipData.newPlainText("AMASAMYA Automated Test", generatedCode)
+                            clipboard.setPrimaryClip(clip)
+                            Toast.makeText(context, "Test code copied to clipboard!", Toast.LENGTH_SHORT).show()
+                            showTestExporterDialog = false
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = VibrantCyan,
+                            contentColor = DeepSpace
+                        )
+                    ) {
+                        Text("Copy Code", fontWeight = FontWeight.Bold)
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { showTestExporterDialog = false },
+                        colors = ButtonDefaults.textButtonColors(contentColor = LightGrey)
+                    ) {
+                        Text("Close")
+                    }
+                }
+            )
         }
     }
 }
