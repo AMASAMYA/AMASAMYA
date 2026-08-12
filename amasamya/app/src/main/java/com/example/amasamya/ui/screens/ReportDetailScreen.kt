@@ -73,6 +73,7 @@ fun ReportDetailScreen(
     var session by remember { mutableStateOf<AuditSession?>(null) }
     var issues by remember { mutableStateOf<List<ElementIssue>>(emptyList()) }
     var screensWithFocusPaths by remember { mutableStateOf<List<String>>(emptyList()) }
+    var focusNodes by remember { mutableStateOf<List<com.example.amasamya.db.FocusPathNode>>(emptyList()) }
     var selectedPersona by remember { mutableStateOf(settingsManager.reportPersona) }
     var isPersonaDropdownExpanded by remember { mutableStateOf(false) }
     var showTestExporterDialog by remember { mutableStateOf(false) }
@@ -81,7 +82,9 @@ fun ReportDetailScreen(
     LaunchedEffect(sessionId) {
         session = dbHelper.getSession(sessionId)
         issues = dbHelper.getIssuesForSession(sessionId)
-        screensWithFocusPaths = dbHelper.getFocusNodesForSession(sessionId).map { it.screenName }.distinct()
+        val allFocusNodes = dbHelper.getFocusNodesForSession(sessionId)
+        focusNodes = allFocusNodes
+        screensWithFocusPaths = allFocusNodes.map { it.screenName }.distinct()
         
         val manager = context.getSystemService(Context.ACCESSIBILITY_SERVICE) as android.view.accessibility.AccessibilityManager
         if (manager.isEnabled) {
@@ -527,6 +530,11 @@ fun ReportDetailScreen(
                                 }
                                 HorizontalDivider(color = Color(0xFF2C3246), thickness = 1.dp)
                             }
+
+                            val utteranceReport = remember(screenName, issues, focusNodes) {
+                                com.example.amasamya.utils.UtteranceFlowEstimator.estimateScreenFlow(screenName, issues, focusNodes)
+                            }
+                            UtteranceFlowCard(report = utteranceReport)
                         }
 
                         val screenIssues = issues.filter { it.screenName == screenName }
@@ -993,5 +1001,156 @@ private fun shareReportFile(context: Context, file: File, mimeType: String) {
         context.startActivity(chooser)
     } catch (e: Exception) {
         Toast.makeText(context, "Error sharing file: ${e.message}", Toast.LENGTH_LONG).show()
+    }
+}
+
+@Composable
+fun UtteranceFlowCard(
+    report: com.example.amasamya.utils.UtteranceFlowEstimator.ScreenUtteranceReport,
+    modifier: Modifier = Modifier
+) {
+    var isExpanded by remember { mutableStateOf(false) }
+    val fatigueColor = when {
+        report.fatigueLevel.startsWith("High") -> NeonRed
+        report.fatigueLevel.startsWith("Moderate") -> AmberGold
+        else -> NeonGreen
+    }
+
+    Surface(
+        color = GlassySurface,
+        shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(1.dp, fatigueColor.copy(alpha = 0.4f)),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .semantics(mergeDescendants = true) {
+                        role = Role.Button
+                        onClick(label = if (isExpanded) "Collapse reading time breakdown" else "Expand reading time breakdown") {
+                            isExpanded = !isExpanded
+                            true
+                        }
+                    }
+            ) {
+                Column {
+                    Text(
+                        text = "⏱️ Screen Reader Reading Time & Speech Flow",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                        color = VibrantCyan,
+                        modifier = Modifier.semantics { heading() }
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = "~${report.estimatedReadingTimeSeconds}s TalkBack reading time · ${report.totalWordCount} words · ${report.totalFocusableNodes} focus stops",
+                        color = LightGrey,
+                        fontSize = 12.sp
+                    )
+                }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(fatigueColor.copy(alpha = 0.15f))
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = report.fatigueLevel,
+                            color = fatigueColor,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 11.sp
+                        )
+                    }
+
+                    IconButton(onClick = { isExpanded = !isExpanded }) {
+                        Icon(
+                            imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                            contentDescription = if (isExpanded) "Collapse reading flow details" else "Expand reading flow details",
+                            tint = TextSecondary
+                        )
+                    }
+                }
+            }
+
+            if (isExpanded) {
+                HorizontalDivider(color = Color(0xFF2C3246), thickness = 1.dp)
+
+                Text(
+                    text = "Screen Reader Recommendations",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 13.sp,
+                    color = PureWhite
+                )
+
+                report.recommendations.forEach { rec ->
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        modifier = Modifier.padding(start = 4.dp)
+                    ) {
+                        Text("•", color = VibrantCyan, fontSize = 13.sp)
+                        Text(rec, color = TextSecondary, fontSize = 12.sp, lineHeight = 16.sp)
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                Text(
+                    text = "Spoken Utterance Chain (${report.utteranceItems.size} nodes)",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 13.sp,
+                    color = PureWhite
+                )
+
+                Surface(
+                    color = DeepSpace,
+                    shape = RoundedCornerShape(8.dp),
+                    border = BorderStroke(1.dp, Color(0xFF2C3246)),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 200.dp)
+                ) {
+                    LazyColumn(modifier = Modifier.padding(10.dp)) {
+                        items(report.utteranceItems) { item ->
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp)
+                            ) {
+                                Text(
+                                    text = "#${item.nodeOrder} ${item.className.substringAfterLast('.')}",
+                                    color = VibrantCyan,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = "\"${item.spokenText}\"",
+                                    color = NeonGreen,
+                                    fontSize = 12.sp
+                                )
+                                Text(
+                                    text = "${item.wordCount} words · ~${String.format(java.util.Locale.US, "%.1f", item.durationSeconds)}s",
+                                    color = TextSecondary,
+                                    fontSize = 10.sp
+                                )
+                                HorizontalDivider(color = Color(0xFF2C3246).copy(alpha = 0.5f), thickness = 0.5.dp, modifier = Modifier.padding(top = 4.dp))
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
