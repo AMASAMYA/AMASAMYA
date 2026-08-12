@@ -81,6 +81,22 @@ object AdbReportServer {
                 val sessions = dbHelper.getAllSessions()
                 val html = generateDashboardHtml(sessions)
                 sendResponse(output, 200, "OK", "text/html; charset=utf-8", html.toByteArray(Charsets.UTF_8))
+            } else if (uri == "/api/sessions") {
+                val sessions = dbHelper.getAllSessions()
+                val json = generateSessionsJson(sessions)
+                sendResponse(output, 200, "OK", "application/json; charset=utf-8", json.toByteArray(Charsets.UTF_8))
+            } else if (uri.startsWith("/api/report/")) {
+                val sessionIdStr = uri.substringAfter("/api/report/").substringBefore("/")
+                val sessionId = sessionIdStr.toLongOrNull()
+                val session = sessionId?.let { dbHelper.getSession(it) }
+                if (session != null) {
+                    val issues = dbHelper.getIssuesForSession(sessionId)
+                    val focusNodes = dbHelper.getFocusNodesForSession(sessionId)
+                    val json = generateReportJson(session, issues, focusNodes)
+                    sendResponse(output, 200, "OK", "application/json; charset=utf-8", json.toByteArray(Charsets.UTF_8))
+                } else {
+                    sendResponse(output, 404, "Not Found", "application/json", "{\"error\":\"Session not found\"}".toByteArray())
+                }
             } else if (uri.startsWith("/report/")) {
                 val sessionIdStr = uri.substringAfter("/report/").substringBefore("/")
                 val sessionId = sessionIdStr.toLongOrNull()
@@ -111,6 +127,8 @@ object AdbReportServer {
         val headers = "HTTP/1.1 ${statusCode} ${statusText}\r\n" +
                 "Content-Type: ${contentType}\r\n" +
                 "Content-Length: ${content.size}\r\n" +
+                "Access-Control-Allow-Origin: *\r\n" +
+                "Access-Control-Allow-Methods: GET, OPTIONS\r\n" +
                 "Connection: close\r\n" +
                 "\r\n"
         output.write(headers.toByteArray(Charsets.UTF_8))
@@ -683,5 +701,78 @@ object AdbReportServer {
                 Pair(compose, xml)
             }
         }
+    }
+
+    private fun generateSessionsJson(sessions: List<AuditSession>): String {
+        val sb = java.lang.StringBuilder()
+        sb.append("[\n")
+        sessions.forEachIndexed { index, session ->
+            val dateStr = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(Date(session.date))
+            sb.append("  {\n")
+            sb.append("    \"id\": ${session.id},\n")
+            sb.append("    \"name\": \"${escapeJson(session.name)}\",\n")
+            sb.append("    \"timestamp\": ${session.date},\n")
+            sb.append("    \"dateFormatted\": \"${escapeJson(dateStr)}\",\n")
+            sb.append("    \"packageName\": \"${escapeJson(session.packageName)}\",\n")
+            sb.append("    \"deviceInfo\": \"${escapeJson(session.deviceInfo)}\",\n")
+            sb.append("    \"wcagLevel\": \"${escapeJson(session.wcagLevel)}\"\n")
+            sb.append("  }${if (index < sessions.size - 1) "," else ""}\n")
+        }
+        sb.append("]")
+        return sb.toString()
+    }
+
+    private fun generateReportJson(session: AuditSession, issues: List<ElementIssue>, focusNodes: List<FocusPathNode>): String {
+        val sb = java.lang.StringBuilder()
+        val dateStr = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(Date(session.date))
+        sb.append("{\n")
+        sb.append("  \"session\": {\n")
+        sb.append("    \"id\": ${session.id},\n")
+        sb.append("    \"name\": \"${escapeJson(session.name)}\",\n")
+        sb.append("    \"timestamp\": ${session.date},\n")
+        sb.append("    \"dateFormatted\": \"${escapeJson(dateStr)}\",\n")
+        sb.append("    \"packageName\": \"${escapeJson(session.packageName)}\",\n")
+        sb.append("    \"deviceInfo\": \"${escapeJson(session.deviceInfo)}\",\n")
+        sb.append("    \"wcagLevel\": \"${escapeJson(session.wcagLevel)}\"\n")
+        sb.append("  },\n")
+        sb.append("  \"issues\": [\n")
+        issues.forEachIndexed { index, issue ->
+            sb.append("    {\n")
+            sb.append("      \"id\": ${issue.id},\n")
+            sb.append("      \"screenName\": \"${escapeJson(issue.screenName)}\",\n")
+            sb.append("      \"issueType\": \"${escapeJson(issue.issueType)}\",\n")
+            sb.append("      \"wcagSc\": \"${escapeJson(issue.wcagSc)}\",\n")
+            sb.append("      \"severity\": \"${escapeJson(issue.severity)}\",\n")
+            sb.append("      \"description\": \"${escapeJson(issue.description)}\",\n")
+            sb.append("      \"className\": \"${escapeJson(issue.className)}\",\n")
+            sb.append("      \"bounds\": \"${escapeJson(issue.bounds)}\",\n")
+            sb.append("      \"text\": \"${escapeJson(issue.text)}\",\n")
+            sb.append("      \"contentDescription\": \"${escapeJson(issue.contentDescription)}\"\n")
+            sb.append("    }${if (index < issues.size - 1) "," else ""}\n")
+        }
+        sb.append("  ],\n")
+        sb.append("  \"focusNodes\": [\n")
+        focusNodes.forEachIndexed { index, node ->
+            sb.append("    {\n")
+            sb.append("      \"id\": ${node.id},\n")
+            sb.append("      \"screenName\": \"${escapeJson(node.screenName)}\",\n")
+            sb.append("      \"focusOrder\": ${node.focusOrder},\n")
+            sb.append("      \"className\": \"${escapeJson(node.className)}\",\n")
+            sb.append("      \"bounds\": \"${escapeJson(node.bounds)}\",\n")
+            sb.append("      \"text\": \"${escapeJson(node.text)}\",\n")
+            sb.append("      \"contentDescription\": \"${escapeJson(node.contentDescription)}\"\n")
+            sb.append("    }${if (index < focusNodes.size - 1) "," else ""}\n")
+        }
+        sb.append("  ]\n")
+        sb.append("}")
+        return sb.toString()
+    }
+
+    private fun escapeJson(str: String): String {
+        return str.replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+            .replace("\n", "\\n")
+            .replace("\r", "\\r")
+            .replace("\t", "\\t")
     }
 }
