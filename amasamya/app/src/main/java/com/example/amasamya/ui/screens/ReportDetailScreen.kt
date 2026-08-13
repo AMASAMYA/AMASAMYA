@@ -470,6 +470,35 @@ fun ReportDetailScreen(
                             ) {
                                 Text("⚡ Export Automated UI Test Script", fontSize = 14.sp, fontWeight = FontWeight.Bold)
                             }
+
+                            Spacer(modifier = Modifier.height(6.dp))
+
+                            // VPAT 2.4 / ACR Exporter Button
+                            Button(
+                                onClick = {
+                                    val activeSession = session
+                                    if (activeSession != null) {
+                                        val file = com.example.amasamya.utils.VpatExporter.exportVpatFile(context, activeSession, issues, "html")
+                                        if (file != null) {
+                                            shareReportFile(context, file, "text/html")
+                                        } else {
+                                            Toast.makeText(context, "Failed to generate VPAT ACR Report", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = NeonGreen,
+                                    contentColor = DeepSpace
+                                ),
+                                shape = RoundedCornerShape(12.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .semantics {
+                                        contentDescription = "Export official VPAT 2.4 ACR compliance report mapped to GIGW 3.0 and IS 17802"
+                                    }
+                            ) {
+                                Text("📜 Export VPAT 2.4 ACR (GIGW / IS 17802)", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                            }
                         }
                     }
                 }

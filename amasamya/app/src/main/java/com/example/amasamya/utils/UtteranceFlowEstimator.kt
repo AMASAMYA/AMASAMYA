@@ -118,6 +118,19 @@ object UtteranceFlowEstimator {
     private fun countWords(input: String): Int {
         val trimmed = input.trim()
         if (trimmed.isEmpty()) return 0
-        return trimmed.split(Regex("\\s+")).size
+        
+        // Detect Indic scripts (Devanagari, Tamil, Telugu, Bengali, Gujarati, Kannada)
+        val isIndic = trimmed.any { ch ->
+            ch in '\u0900'..'\u0DFF'
+        }
+
+        return if (isIndic) {
+            // Indic language syllable tokens are denser; count word boundaries plus explicit akshara clusters
+            val words = trimmed.split(Regex("\\s+")).size
+            val aksharaCount = trimmed.count { ch -> ch.isLetter() }
+            (words + (aksharaCount / 5)).coerceAtLeast(words)
+        } else {
+            trimmed.split(Regex("\\s+")).size
+        }
     }
 }

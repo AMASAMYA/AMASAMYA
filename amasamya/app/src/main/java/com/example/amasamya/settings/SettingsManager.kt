@@ -32,6 +32,9 @@ class SettingsManager(context: Context) {
         const val STANDARD_WCAG_2_2 = "WCAG 2.2"
         const val STANDARD_SECTION_508 = "Section 508"
         const val STANDARD_EN_301_549 = "EN 301 549"
+        const val STANDARD_GIGW_3_0 = "GIGW 3.0"
+        const val STANDARD_IS_17802 = "IS 17802"
+        const val STANDARD_INDIA_NATIONAL = "India National Baseline"
 
         const val PERSONA_DEVELOPER = "Developer"
         const val PERSONA_TESTER = "Tester"
