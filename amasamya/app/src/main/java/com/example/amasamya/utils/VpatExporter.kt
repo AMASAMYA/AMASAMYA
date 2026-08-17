@@ -17,6 +17,8 @@ object VpatExporter {
         val wcagLevel: String,
         val gigwRule: String,
         val is17802Rule: String,
+        val section508Rule: String = "Section 508 E205.4",
+        val en301549Rule: String = "EN 301 549 Ch 9.1",
         val conformanceLevel: String, // "Supports", "Supports with Exceptions", "Does Not Support"
         val remarks: String
     )
@@ -29,11 +31,11 @@ object VpatExporter {
         val criteriaList = evaluateCriteria(issues)
         val sb = StringBuilder()
 
-        sb.append("# AMASAMYA Accessibility Conformance Report (VPAT 2.4 / IS 17802 / GIGW 3.0 Edition)\n\n")
+        sb.append("# AMASAMYA Accessibility Conformance Report (VPAT 2.4 / IS 17802 / GIGW 3.0 / Section 508 / EN 301 549 Edition)\n\n")
         sb.append("**Name of Product/Application:** ").append(session.name).append("\n")
         sb.append("**Package Name / ID:** `").append(session.packageName).append("`\n")
         sb.append("**Report Date:** ").append(dateStr).append("\n")
-        sb.append("**Evaluation Standards:** WCAG 2.2 AA, GIGW 3.0 (Guidelines for Indian Government Websites), IS 17802 (Bureau of Indian Standards)\n")
+        sb.append("**Evaluation Standards:** WCAG 2.2 AA, GIGW 3.0, IS 17802, US Section 508, EU EN 301 549\n")
         sb.append("**Evaluation Tool:** AMASAMYA Accessibility Engine (Built by Akhilesh Malani)\n\n")
 
         sb.append("## Executive Summary\n")
