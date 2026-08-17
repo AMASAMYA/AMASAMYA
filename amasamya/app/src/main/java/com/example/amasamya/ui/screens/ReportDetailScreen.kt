@@ -854,6 +854,31 @@ fun IssueViolationCard(issue: ElementIssue, persona: String, modifier: Modifier 
                             fontSize = 12.sp
                         )
                     }
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    val context = androidx.compose.ui.platform.LocalContext.current
+                    Button(
+                        onClick = {
+                            val intent = android.content.Intent(
+                                android.content.Intent.ACTION_VIEW,
+                                android.net.Uri.parse("https://amasamya.akhileshmalani.com/academy.html")
+                            )
+                            context.startActivity(intent)
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = VibrantCyan,
+                            contentColor = DeepSpace
+                        ),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .semantics {
+                                contentDescription = "Learn how to fix this issue in AMASAMYA Academy"
+                            }
+                    ) {
+                        Text("🎓 Learn in AMASAMYA Academy", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
