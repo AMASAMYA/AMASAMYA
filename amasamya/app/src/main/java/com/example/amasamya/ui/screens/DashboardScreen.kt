@@ -195,57 +195,15 @@ fun DashboardScreen(
     }
 
     if (showOnboardingDialog) {
-        AlertDialog(
-            onDismissRequest = {
+        com.example.amasamya.ui.views.OnboardingWalkthroughDialog(
+            onDismiss = {
                 showOnboardingDialog = false
                 settingsManager.showOnboarding = false
             },
-            title = {
-                Text(
-                    text = "Welcome to AMASAMYA",
-                    fontWeight = FontWeight.Bold,
-                    color = VibrantCyan
-                )
-            },
-            text = {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = "AMASAMYA is a blind-first WCAG 2.2 accessibility auditing tool designed to audit layouts and TalkBack reading order offline.",
-                        color = PureWhite
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "1. How to scan: Enable the accessibility service, start an audit session, and use the floating overlay button on any app you want to audit.",
-                        fontSize = 13.sp,
-                        color = PureWhite.copy(alpha = 0.8f)
-                    )
-                    Text(
-                        text = "2. What to expect: Scans analyze color contrast, touch target sizes, text labels, and swipe paths. Results are saved offline locally.",
-                        fontSize = 13.sp,
-                        color = PureWhite.copy(alpha = 0.8f)
-                    )
-                    Text(
-                        text = "3. 100% Offline: Audits execute entirely on this device. No data is stored externally, transmitted, or shared.",
-                        fontSize = 13.sp,
-                        color = PureWhite.copy(alpha = 0.8f)
-                    )
-                }
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showOnboardingDialog = false
-                        settingsManager.showOnboarding = false
-                    }
-                ) {
-                    Text("Get Started", color = VibrantCyan)
-                }
-            },
-            containerColor = DeepSpace,
-            shape = RoundedCornerShape(16.dp),
-            tonalElevation = 6.dp
+            onComplete = {
+                showOnboardingDialog = false
+                settingsManager.showOnboarding = false
+            }
         )
     }
 
@@ -429,10 +387,12 @@ fun DashboardScreen(
                 .padding(paddingValues)
         ) {
             // Header Top Bar
-            Box(
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 20.dp)
+                    .padding(horizontal = 20.dp, vertical = 20.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = "AMASAMYA",
@@ -448,6 +408,15 @@ fun DashboardScreen(
                         heading()
                     }
                 )
+
+                IconButton(
+                    onClick = { showOnboardingDialog = true },
+                    modifier = Modifier.semantics {
+                        contentDescription = "Replay Interactive Onboarding Walkthrough and Feature Guide"
+                    }
+                ) {
+                    Text("❓", fontSize = 20.sp)
+                }
             }
 
             // Scrollable Content

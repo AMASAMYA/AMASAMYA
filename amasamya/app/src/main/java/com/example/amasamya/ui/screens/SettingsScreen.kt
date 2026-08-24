@@ -62,6 +62,10 @@ fun SettingsScreen(
     var voiceCommandsEnabled by remember { mutableStateOf(settingsManager.isVoiceCommandsEnabled) }
     var simulatorModeEnabled by remember { mutableStateOf(settingsManager.isSimulatorModeEnabled) }
     var selectedCvdMode by remember { mutableStateOf(settingsManager.cvdSimulationMode) }
+    var showLegalDialog by remember { mutableStateOf(false) }
+    var legalDialogTab by remember { mutableIntStateOf(0) }
+    var showFeedbackDialog by remember { mutableStateOf(false) }
+    var showWalkthroughTour by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         val manager = context.getSystemService(android.content.Context.ACCESSIBILITY_SERVICE) as android.view.accessibility.AccessibilityManager
@@ -1324,6 +1328,87 @@ fun SettingsScreen(
                     containerColor = DeepSpace,
                     shape = RoundedCornerShape(16.dp),
                     tonalElevation = 6.dp
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "Legal, Support & Walkthrough",
+                fontWeight = FontWeight.Bold,
+                color = VibrantCyan,
+                fontSize = 18.sp
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Surface(
+                color = GlassySurface,
+                shape = RoundedCornerShape(12.dp),
+                border = BorderStroke(1.dp, Color(0xFF2C3246)),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Button(
+                        onClick = {
+                            legalDialogTab = 0
+                            showLegalDialog = true
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = DeepSpace, contentColor = PureWhite),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.fillMaxWidth().semantics { contentDescription = "Open Privacy Policy Dialog" }
+                    ) {
+                        Text("🔒 Privacy Policy", fontWeight = FontWeight.Bold)
+                    }
+
+                    Button(
+                        onClick = {
+                            legalDialogTab = 1
+                            showLegalDialog = true
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = DeepSpace, contentColor = PureWhite),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.fillMaxWidth().semantics { contentDescription = "Open Terms of Service Dialog" }
+                    ) {
+                        Text("📜 Terms of Service", fontWeight = FontWeight.Bold)
+                    }
+
+                    Button(
+                        onClick = { showFeedbackDialog = true },
+                        colors = ButtonDefaults.buttonColors(containerColor = VibrantCyan, contentColor = DeepSpace),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.fillMaxWidth().semantics { contentDescription = "Submit Accessibility Barrier Report and Feedback" }
+                    ) {
+                        Text("💬 Send Feedback & Barrier Report", fontWeight = FontWeight.Bold)
+                    }
+
+                    OutlinedButton(
+                        onClick = { showWalkthroughTour = true },
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.fillMaxWidth().semantics { contentDescription = "Replay Interactive Onboarding Walkthrough" }
+                    ) {
+                        Text("❓ Replay Onboarding Walkthrough", color = PureWhite)
+                    }
+                }
+            }
+
+            if (showLegalDialog) {
+                com.example.amasamya.ui.views.LegalAndPrivacyDialog(
+                    initialTab = legalDialogTab,
+                    onDismiss = { showLegalDialog = false }
+                )
+            }
+
+            if (showFeedbackDialog) {
+                com.example.amasamya.ui.views.UserFeedbackDialog(
+                    onDismiss = { showFeedbackDialog = false }
+                )
+            }
+
+            if (showWalkthroughTour) {
+                com.example.amasamya.ui.views.OnboardingWalkthroughDialog(
+                    onDismiss = { showWalkthroughTour = false },
+                    onComplete = { showWalkthroughTour = false }
                 )
             }
         }
