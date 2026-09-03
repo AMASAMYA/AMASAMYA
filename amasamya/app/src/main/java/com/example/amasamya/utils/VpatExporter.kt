@@ -137,16 +137,44 @@ object VpatExporter {
         return sb.toString()
     }
 
+    fun generateVpatCsv(
+        session: AuditSession,
+        issues: List<ElementIssue>
+    ): String {
+        val criteriaList = evaluateCriteria(issues)
+        val sb = StringBuilder()
+        sb.append("Criteria (WCAG),Criterion Name,WCAG Level,GIGW 3.0 Rule,IS 17802 Rule,Section 508 Rule,EN 301 549 Rule,Conformance Level,Remarks and Explanations\n")
+        criteriaList.forEach { c ->
+            val safeRemarks = c.remarks.replace("\"", "\"\"")
+            sb.append("\"${c.scNumber}\",\"${c.scName}\",\"${c.wcagLevel}\",\"${c.gigwRule}\",\"${c.is17802Rule}\",\"${c.section508Rule}\",\"${c.en301549Rule}\",\"${c.conformanceLevel}\",\"$safeRemarks\"\n")
+        }
+        return sb.toString()
+    }
+
     fun exportVpatFile(context: Context, session: AuditSession, issues: List<ElementIssue>, format: String): File? {
         return try {
             val dir = File(context.getExternalFilesDir(null), "vpat_reports")
             if (!dir.exists()) dir.mkdirs()
 
             val safeName = session.name.replace(Regex("[^a-zA-Z0-9]"), "_")
-            val fileName = "VPAT_${safeName}_${session.id}.${if (format == "html") "html" else "md"}"
+            val ext = when (format.lowercase()) {
+                "csv" -> "csv"
+                "pdf" -> "pdf"
+                "html" -> "html"
+                else -> "md"
+            }
+            val fileName = "VPAT_${safeName}_${session.id}.$ext"
             val file = File(dir, fileName)
 
-            val content = if (format == "html") generateVpatHtml(session, issues) else generateVpatMarkdown(session, issues)
+            if (format.lowercase() == "pdf") {
+                return ReportExporter.exportToPdf(context, session, issues)
+            }
+
+            val content = when (format.lowercase()) {
+                "csv" -> generateVpatCsv(session, issues)
+                "html" -> generateVpatHtml(session, issues)
+                else -> generateVpatMarkdown(session, issues)
+            }
             FileOutputStream(file).use { fos ->
                 fos.write(content.toByteArray())
             }

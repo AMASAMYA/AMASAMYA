@@ -1,0 +1,27 @@
+================================================================================
+AMASAMYA - GOOGLE PLAY STORE ASO OPTIMIZED LISTING PACKAGE
+================================================================================
+
+App Title (30 chars max):
+AMASAMYA: Accessibility Audit
+
+Short Description (80 chars max):
+Offline WCAG 2.2, GIGW 3.0 & IS 17802 accessibility auditor for Android apps.
+
+Full Description:
+AMASAMYA is an advanced, offline-first digital accessibility auditing and testing suite designed for Android developers, QA engineers, accessibility auditors, and product managers. Built with a blind-first design philosophy, AMASAMYA enables development teams to evaluate mobile applications against international and national accessibility standards - including WCAG 2.2 (Level A, AA, AAA), India's Guidelines for Indian Government Websites (GIGW 3.0), Bureau of Indian Standards (IS 17802), US Section 508, and EU EN 301 549.
+
+KEY FEATURES & CAPABILITIES:
+
+• Automated WCAG 2.2 & GIGW 3.0 Auditing: Automatically inspect interactive UI components, contrast ratios, missing text alternatives, unlabelled buttons, and touch target sizes (48dp/44dp).
+• Real-Time TalkBack Focus Trail & Reading Order: Dynamically map and visualize screen-reader swipe navigation sequences to eliminate focus traps and out-of-order reading paths.
+• Dynamic Visual Dependency & Color Blindness Simulation: Test your application UI under Protanopia, Deuteranopia, Tritanopia, and Monochromacy color vision deficiency filters.
+• One-Click Jetpack Compose & XML Code Remediation: Generate copyable Jetpack Compose semantics modifiers and Android XML layout attributes to fix detected violations instantly.
+• Official VPAT 2.4 / ACR Report Exporter: Export self-contained HTML and Markdown Executive Reports mapping compliance directly to WCAG 2.2, Section 508, EN 301 549, and IS 17802 tables.
+• Hands-Free Voice-Controlled Auditing: Trigger screen scans and audit recordings using hands-free voice commands.
+• Guided Screen Reader Simulator Mode: Practice TalkBack swipe gestures and audit reading order without enabling system-wide screen reader settings.
+• 100% Privacy-First & Offline: Audits execute entirely on your device. Zero telemetry, zero external cloud dependencies, and zero user data collection.
+
+Intended Audience: Android Developers, Accessibility Consultants, QA Engineers, UX Designers, and Enterprise Procurement Compliance Teams.
+
+Download AMASAMYA today to build inclusive, barrier-free mobile experiences for everyone!

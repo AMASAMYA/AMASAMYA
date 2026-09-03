@@ -77,6 +77,7 @@ fun ReportDetailScreen(
     var selectedPersona by remember { mutableStateOf(settingsManager.reportPersona) }
     var isPersonaDropdownExpanded by remember { mutableStateOf(false) }
     var showTestExporterDialog by remember { mutableStateOf(false) }
+    var showVpatDialog by remember { mutableStateOf(false) }
     var selectedTestFramework by remember { mutableStateOf(com.example.amasamya.utils.TestScriptExporter.TestFramework.JETPACK_COMPOSE) }
 
     LaunchedEffect(sessionId) {
@@ -475,17 +476,7 @@ fun ReportDetailScreen(
 
                             // VPAT 2.4 / ACR Exporter Button
                             Button(
-                                onClick = {
-                                    val activeSession = session
-                                    if (activeSession != null) {
-                                        val file = com.example.amasamya.utils.VpatExporter.exportVpatFile(context, activeSession, issues, "html")
-                                        if (file != null) {
-                                            shareReportFile(context, file, "text/html")
-                                        } else {
-                                            Toast.makeText(context, "Failed to generate VPAT ACR Report", Toast.LENGTH_SHORT).show()
-                                        }
-                                    }
-                                },
+                                onClick = { showVpatDialog = true },
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = NeonGreen,
                                     contentColor = DeepSpace
@@ -494,10 +485,10 @@ fun ReportDetailScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .semantics {
-                                        contentDescription = "Export official VPAT 2.4 ACR compliance report mapped to GIGW 3.0 and IS 17802"
+                                        contentDescription = "Export official VPAT 2.4 ACR compliance report in PDF, HTML, Excel CSV, or Markdown format"
                                     }
                             ) {
-                                Text("📜 Export VPAT 2.4 ACR (GIGW / IS 17802)", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                                Text("📜 Export VPAT 2.4 ACR (PDF, Excel, HTML, MD)", fontSize = 14.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
@@ -722,6 +713,114 @@ fun ReportDetailScreen(
                         colors = ButtonDefaults.textButtonColors(contentColor = LightGrey)
                     ) {
                         Text("Close")
+                    }
+                }
+            )
+        }
+
+        if (showVpatDialog && session != null) {
+            val activeSession = session!!
+            AlertDialog(
+                onDismissRequest = { showVpatDialog = false },
+                containerColor = DeepSpace,
+                titleContentColor = PureWhite,
+                textContentColor = TextSecondary,
+                title = {
+                    Text(
+                        text = "📜 Export VPAT 2.4 / ACR Report",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp,
+                        color = NeonGreen,
+                        modifier = Modifier.semantics { heading() }
+                    )
+                },
+                text = {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "Select format for VPAT 2.4 ACR report (mapped to WCAG 2.2, GIGW 3.0, IS 17802, Section 508, and EN 301 549):",
+                            fontSize = 13.sp,
+                            color = LightGrey
+                        )
+
+                        // Format Selection Buttons
+                        Button(
+                            onClick = {
+                                val file = com.example.amasamya.utils.VpatExporter.exportVpatFile(context, activeSession, issues, "pdf")
+                                if (file != null) {
+                                    shareReportFile(context, file, "application/pdf")
+                                } else {
+                                    Toast.makeText(context, "Failed to generate VPAT PDF", Toast.LENGTH_SHORT).show()
+                                }
+                                showVpatDialog = false
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = VibrantCyan, contentColor = DeepSpace),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.fillMaxWidth().semantics { contentDescription = "Export VPAT Executive PDF Report" }
+                        ) {
+                            Text("📄 VPAT Executive PDF Report", fontWeight = FontWeight.Bold)
+                        }
+
+                        Button(
+                            onClick = {
+                                val file = com.example.amasamya.utils.VpatExporter.exportVpatFile(context, activeSession, issues, "html")
+                                if (file != null) {
+                                    shareReportFile(context, file, "text/html")
+                                } else {
+                                    Toast.makeText(context, "Failed to generate VPAT HTML", Toast.LENGTH_SHORT).show()
+                                }
+                                showVpatDialog = false
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = GlassySurface, contentColor = PureWhite),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.fillMaxWidth().semantics { contentDescription = "Export VPAT Interactive HTML Web Report" }
+                        ) {
+                            Text("📜 VPAT Interactive HTML Web Report", fontWeight = FontWeight.Bold)
+                        }
+
+                        Button(
+                            onClick = {
+                                val file = com.example.amasamya.utils.VpatExporter.exportVpatFile(context, activeSession, issues, "csv")
+                                if (file != null) {
+                                    shareReportFile(context, file, "text/csv")
+                                } else {
+                                    Toast.makeText(context, "Failed to generate VPAT CSV Spreadsheet", Toast.LENGTH_SHORT).show()
+                                }
+                                showVpatDialog = false
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = AmberGold, contentColor = DeepSpace),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.fillMaxWidth().semantics { contentDescription = "Export VPAT Excel CSV Spreadsheet Matrix" }
+                        ) {
+                            Text("📊 VPAT Excel / CSV Spreadsheet Matrix", fontWeight = FontWeight.Bold)
+                        }
+
+                        OutlinedButton(
+                            onClick = {
+                                val file = com.example.amasamya.utils.VpatExporter.exportVpatFile(context, activeSession, issues, "md")
+                                if (file != null) {
+                                    shareReportFile(context, file, "text/plain")
+                                } else {
+                                    Toast.makeText(context, "Failed to generate VPAT Markdown", Toast.LENGTH_SHORT).show()
+                                }
+                                showVpatDialog = false
+                            },
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.fillMaxWidth().semantics { contentDescription = "Export VPAT Markdown Report" }
+                        ) {
+                            Text("📝 VPAT Markdown Report", color = PureWhite)
+                        }
+                    }
+                },
+                confirmButton = {},
+                dismissButton = {
+                    TextButton(
+                        onClick = { showVpatDialog = false },
+                        colors = ButtonDefaults.textButtonColors(contentColor = LightGrey)
+                    ) {
+                        Text("Cancel")
                     }
                 }
             )
