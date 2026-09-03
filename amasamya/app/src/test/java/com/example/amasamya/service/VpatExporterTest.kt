@@ -56,8 +56,25 @@ class VpatExporterTest {
 
         val html = VpatExporter.generateVpatHtml(sampleSession, emptyList())
         assertNotNull(html)
-        assertTrue(html.contains("VPAT 2.4 / ACR Conformance Report"))
+        assertTrue(html.contains("VPAT 2.5 INT / ACR Conformance Report"))
         assertTrue(html.contains("Supports"))
         assertTrue(html.contains("IS 17802"))
+    }
+
+    @Test
+    fun testGenerateVpatCsv() {
+        val sampleSession = AuditSession(
+            id = 3,
+            name = "Enterprise App Audit",
+            date = System.currentTimeMillis(),
+            packageName = "com.enterprise.app",
+            deviceInfo = "Android 14",
+            wcagLevel = "AA"
+        )
+        val csv = VpatExporter.generateVpatCsv(sampleSession, emptyList())
+        assertNotNull(csv)
+        assertTrue(csv.contains("Criteria (WCAG)"))
+        assertTrue(csv.contains("Section 508 Rule"))
+        assertTrue(csv.contains("EN 301 549 Rule"))
     }
 }

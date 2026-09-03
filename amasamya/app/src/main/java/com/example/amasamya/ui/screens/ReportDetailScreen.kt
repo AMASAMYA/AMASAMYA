@@ -474,7 +474,7 @@ fun ReportDetailScreen(
 
                             Spacer(modifier = Modifier.height(6.dp))
 
-                            // VPAT 2.4 / ACR Exporter Button
+                            // VPAT 2.5 / ACR Exporter Button
                             Button(
                                 onClick = { showVpatDialog = true },
                                 colors = ButtonDefaults.buttonColors(
@@ -485,10 +485,10 @@ fun ReportDetailScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .semantics {
-                                        contentDescription = "Export official VPAT 2.4 ACR compliance report in PDF, HTML, Excel CSV, or Markdown format"
+                                        contentDescription = "Export official VPAT 2.5 INT ACR compliance report in PDF, HTML, Excel CSV, or Markdown format"
                                     }
                             ) {
-                                Text("📜 Export VPAT 2.4 ACR (PDF, Excel, HTML, MD)", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                                Text("📜 Export VPAT 2.5 ACR (PDF, Excel, HTML, MD)", fontSize = 14.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
@@ -727,7 +727,7 @@ fun ReportDetailScreen(
                 textContentColor = TextSecondary,
                 title = {
                     Text(
-                        text = "📜 Export VPAT 2.4 / ACR Report",
+                        text = "📜 Export VPAT 2.5 INT / ACR Report",
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp,
                         color = NeonGreen,

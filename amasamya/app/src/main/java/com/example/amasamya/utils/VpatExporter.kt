@@ -31,7 +31,7 @@ object VpatExporter {
         val criteriaList = evaluateCriteria(issues)
         val sb = StringBuilder()
 
-        sb.append("# AMASAMYA Accessibility Conformance Report (VPAT 2.4 / IS 17802 / GIGW 3.0 / Section 508 / EN 301 549 Edition)\n\n")
+        sb.append("# AMASAMYA Accessibility Conformance Report (VPAT 2.5 INT / IS 17802 / GIGW 3.0 / Section 508 / EN 301 549 Edition)\n\n")
         sb.append("**Name of Product/Application:** ").append(session.name).append("\n")
         sb.append("**Package Name / ID:** `").append(session.packageName).append("`\n")
         sb.append("**Report Date:** ").append(dateStr).append("\n")
@@ -93,7 +93,7 @@ object VpatExporter {
                 </style>
             </head>
             <body>
-                <h1>AMASAMYA VPAT 2.4 / ACR Conformance Report</h1>
+                <h1>AMASAMYA VPAT 2.5 INT / ACR Conformance Report</h1>
                 <p><strong>Application:</strong> ${session.name} (<code>${session.packageName}</code>)</p>
                 <p><strong>Date:</strong> $dateStr</p>
                 <p><strong>Standards Covered:</strong> WCAG 2.2 AA, GIGW 3.0 (India Government Guidelines), IS 17802 (BIS)</p>
