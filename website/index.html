@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMASAMYA - Digital Accessibility Auditing & Compliance Suite</title>
+    <meta name="description" content="AMASAMYA is a blind-first, offline WCAG 2.2, GIGW 3.0, and IS 17802 digital accessibility auditing suite for Android, Web, and Enterprise Applications.">
+    <meta name="keywords" content="Accessibility, WCAG 2.2, GIGW 3.0, IS 17802, VPAT 2.5, Screen Reader, TalkBack, Android Accessibility, Digital Inclusion">
+    
+    <style>
+        :root {
+            --bg-primary: #090b11;
+            --bg-surface: #131824;
+            --bg-card: #1e2230;
+            --text-primary: #ffffff;
+            --text-secondary: #aeaeb2;
+            --cyan-accent: #4fc3f7;
+            --lavender-accent: #e040fb;
+            --green-accent: #69f0ae;
+            --gold-accent: #ffd60a;
+            --red-accent: #ff5252;
+            --border-color: #2c3246;
+            --font-scale: 100%;
+        }
+
+        /* High Contrast Theme Override */
+        body.high-contrast {
+            --bg-primary: #000000;
+            --bg-surface: #121212;
+            --bg-card: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #ffff00;
+            --cyan-accent: #00ffff;
+            --lavender-accent: #ff00ff;
+            --green-accent: #00ff00;
+            --border-color: #ffffff;
+        }
+
+        /* Dyslexia Font Override */
+        body.dyslexic-font {
+            font-family: 'Comic Sans MS', 'Dyslexic', sans-serif !important;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            font-size: var(--font-scale);
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Skip Navigation Link */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 10px;
+            background: var(--cyan-accent);
+            color: #000000;
+            padding: 8px 16px;
+            font-weight: bold;
+            z-index: 10000;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: top 0.2s ease;
+        }
+
+        .skip-link:focus {
+            top: 10px;
+        }
+
+        /* Accessibility Toolbar */
+        .a11y-toolbar {
+            background-color: var(--bg-surface);
+            border-bottom: 1px solid var(--border-color);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .a11y-toolbar-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .a11y-btn {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .a11y-btn:hover, .a11y-btn:focus {
+            outline: 3px solid var(--cyan-accent);
+            background: var(--border-color);
+        }
+
+        /* Navigation Header */
+        header {
+            background: rgba(19, 24, 36, 0.9);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+        }
+
+        .brand-logo {
+            font-size: 1.8rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, var(--cyan-accent), var(--lavender-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 20px;
+            list-style: none;
+        }
+
+        .nav-menu a {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 4px;
+        }
+
+        .nav-menu a:hover, .nav-menu a:focus {
+            color: var(--cyan-accent);
+            outline: 2px solid var(--cyan-accent);
+        }
+
+        /* Main Layout */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 60px 20px;
+            background: radial-gradient(circle at center, rgba(79, 195, 247, 0.1) 0%, transparent 70%);
+            border-radius: 20px;
+            margin-bottom: 60px;
+            border: 1px solid var(--border-color);
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 16px;
+            line-height: 1.2;
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, var(--cyan-accent), var(--lavender-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 800px;
+            margin: 0 auto 30px auto;
+        }
+
+        .store-badge-grid {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, var(--cyan-accent), #0288d1);
+            color: #000000;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(79, 195, 247, 0.3);
+            transition: transform 0.2s ease;
+        }
+
+        .btn-primary:hover, .btn-primary:focus {
+            transform: translateY(-2px);
+            outline: 3px solid #ffffff;
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            text-decoration: none;
+        }
+
+        .btn-secondary:hover, .btn-secondary:focus {
+            border-color: var(--cyan-accent);
+            outline: 3px solid var(--cyan-accent);
+        }
+
+        /* Section Styling */
+        section {
+            margin-bottom: 60px;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--cyan-accent);
+            margin-bottom: 16px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        /* Cards Grid */
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-top: 24px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            transition: border-color 0.2s ease;
+        }
+
+        .card:hover {
+            border-color: var(--cyan-accent);
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+        }
+
+        .card h3 {
+            font-size: 1.4rem;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+
+        .card p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        /* Matrix Table */
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 24px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-surface);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        th, td {
+            padding: 14px 18px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background: var(--bg-card);
+            color: var(--cyan-accent);
+            font-size: 1rem;
+        }
+
+        tr:hover {
+            background: rgba(79, 195, 247, 0.05);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .badge-green { background: rgba(105, 240, 174, 0.2); color: var(--green-accent); }
+        .badge-gold { background: rgba(255, 214, 10, 0.2); color: var(--gold-accent); }
+
+        /* Code Snippet Box */
+        .code-block {
+            background: #000000;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            color: var(--green-accent);
+            font-size: 0.95rem;
+            overflow-x: auto;
+            margin-top: 16px;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--bg-surface);
+            border-top: 1px solid var(--border-color);
+            padding: 40px 20px;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        footer a {
+            color: var(--cyan-accent);
+            text-decoration: none;
+        }
+
+        footer a:hover, footer a:focus {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Skip Navigation Link -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- Accessibility Preferences Toolbar -->
+    <div class="a11y-toolbar" role="region" aria-label="Accessibility Toolbar">
+        <div>
+            <strong>Adaptive Display Options:</strong>
+        </div>
+        <div class="a11y-toolbar-controls">
+            <button class="a11y-btn" onclick="toggleHighContrast()" aria-label="Toggle High Contrast Theme">🌓 Contrast</button>
+            <button class="a11y-btn" onclick="adjustFontSize(1)" aria-label="Increase Text Size">A+</button>
+            <button class="a11y-btn" onclick="adjustFontSize(-1)" aria-label="Decrease Text Size">A-</button>
+            <button class="a11y-btn" onclick="toggleDyslexiaFont()" aria-label="Toggle Dyslexia Friendly Font">📖 Dyslexia Font</button>
+        </div>
+    </div>
+
+    <!-- Navigation Header -->
+    <header>
+        <div class="nav-container">
+            <a href="#" class="brand-logo">AMASAMYA</a>
+            <nav aria-label="Main Navigation">
+                <ul class="nav-menu">
+                    <li><a href="#overview">Overview</a></li>
+                    <li><a href="#capabilities">Capabilities</a></li>
+                    <li><a href="#standards">Standards</a></li>
+                    <li><a href="#developer">Developer Guide</a></li>
+                    <li><a href="#download">Download</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Region -->
+    <main id="main-content">
+
+        <!-- Hero Section -->
+        <section class="hero" aria-labelledby="hero-title">
+            <h1 id="hero-title">Digital Accessibility <br><span class="hero-gradient">Auditing & Compliance Suite</span></h1>
+            <p>AMASAMYA is a blind-first, offline-first digital accessibility suite designed to evaluate mobile apps, web portals, and software against WCAG 2.2, GIGW 3.0, IS 17802, and international VPAT 2.5 standards.</p>
+            
+            <div class="store-badge-grid" id="download">
+                <a href="https://play.google.com/store/apps/details?id=org.amasamya.accessibility" target="_blank" class="btn-primary" aria-label="Download AMASAMYA on Google Play Store">
+                    <span>📱 Get it on Google Play</span>
+                </a>
+                <a href="https://github.com/AMASAMYA/AMASAMYA" target="_blank" class="btn-secondary" aria-label="View AMASAMYA Source Code on GitHub">
+                    <span>💻 GitHub Repository</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- Overview Section -->
+        <section id="overview" aria-labelledby="overview-title">
+            <h2 id="overview-title" class="section-title">Why AMASAMYA?</h2>
+            <div class="grid-3">
+                <div class="card">
+                    <div class="card-icon" aria-hidden="true">👁️‍🗨️</div>
+                    <h3>Blind-First Design</h3>
+                    <p>Engineered from the ground up for screen-reader users (TalkBack, NVDA, JAWS). Merged semantics, non-blocking overlay flags, and spoken utterance timelines.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon" aria-hidden="true">🔒</div>
+                    <h3>100% Offline & Private</h3>
+                    <p>All screen inspection, color contrast analysis, and TalkBack focus path tracing execute entirely on-device. Zero telemetry, zero external servers.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon" aria-hidden="true">📜</div>
+                    <h3>VPAT 2.5 INT Exporter</h3>
+                    <p>Export self-contained VPAT 2.5 ACR compliance reports in Executive PDF, Excel CSV, HTML, and Markdown format for enterprise procurement.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Capabilities Section -->
+        <section id="capabilities" aria-labelledby="cap-title">
+            <h2 id="cap-title" class="section-title">Core Audit Capabilities</h2>
+            <div class="grid-3">
+                <div class="card">
+                    <div class="card-icon" aria-hidden="true">🎯</div>
+                    <h3>Touch Target Inspector</h3>
+                    <p>Validates interactive button dimensions against 48dp (Android/IS 17802) and 44dp (WCAG 2.2 AA) minimum target requirements.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon" aria-hidden="true">🔄</div>
+                    <h3>TalkBack Focus Trail Visualizer</h3>
+                    <p>Dynamically maps sequential screen-reader swipe paths to detect focus traps, out-of-order nodes, and unlabelled interactive controls.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon" aria-hidden="true">🎨</div>
+                    <h3>Color Blindness Simulator</h3>
+                    <p>Simulates Protanopia, Deuteranopia, Tritanopia, and Monochromacy vision filters to verify non-color-dependent UI design.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Standards Matrix Section -->
+        <section id="standards" aria-labelledby="standards-title">
+            <h2 id="standards-title" class="section-title">Compliance Standards Coverage</h2>
+            <p>AMASAMYA evaluates digital applications across national and international accessibility frameworks:</p>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th scope="col">Framework / Standard</th>
+                            <th scope="col">Jurisdiction</th>
+                            <th scope="col">Scope Covered</th>
+                            <th scope="col">Compliance Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>WCAG 2.2 (Level A, AA, AAA)</strong></td>
+                            <td>Global / W3C</td>
+                            <td>Perceivable, Operable, Understandable, Robust</td>
+                            <td><span class="status-badge badge-green">Supported</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>GIGW 3.0</strong></td>
+                            <td>India (Government Websites & Apps)</td>
+                            <td>Mandatory Rules 4.1, 5.2, 6.3, 7.1</td>
+                            <td><span class="status-badge badge-green">Supported</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>IS 17802 (Part 1 & 2)</strong></td>
+                            <td>India (Bureau of Indian Standards)</td>
+                            <td>ICT Accessibility for PwD (48dp target, contrast)</td>
+                            <td><span class="status-badge badge-green">Supported</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>VPAT 2.5 INT (ACR)</strong></td>
+                            <td>Global / Enterprise</td>
+                            <td>WCAG 2.2, Section 508, EN 301 549 Edition</td>
+                            <td><span class="status-badge badge-green">Supported</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>US Section 508</strong></td>
+                            <td>United States (Federal Procurement)</td>
+                            <td>Chapter 5 Software & Chapter 7 508 E205.4</td>
+                            <td><span class="status-badge badge-green">Supported</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>EU EN 301 549</strong></td>
+                            <td>European Union (EAA 2025 Mandate)</td>
+                            <td>Chapter 9 Web & Chapter 11 Software</td>
+                            <td><span class="status-badge badge-green">Supported</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Developer Integration Guide -->
+        <section id="developer" aria-labelledby="dev-title">
+            <h2 id="dev-title" class="section-title">Developer Integration Guide</h2>
+            <p>Integrate AMASAMYA accessibility assertions directly into your Jetpack Compose tests or CLI pipelines:</p>
+
+            <h3 style="margin-top: 20px; color: var(--text-primary);">1. Jetpack Compose Automated Test Assertion</h3>
+            <div class="code-block" tabindex="0" aria-label="Jetpack Compose Code Example">
+@Test
+fun verifyAccessibilityCompliance() {
+    composeTestRule.onNodeWithContentDescription("Submit Audit")
+        .assertExists()
+        .assertHasClickAction()
+}
+            </div>
+
+            <h3 style="margin-top: 24px; color: var(--text-primary);">2. Web Linter CLI Execution (`amasamya-linter.js`)</h3>
+            <div class="code-block" tabindex="0" aria-label="CLI Command Example">
+node amasamya-linter.js index.html --standard=WCAG22_AAA --gigw=3.0
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="nav-container" style="flex-direction: column; gap: 12px;">
+            <p><strong>AMASAMYA</strong> - Created by <strong>Akhilesh Malani</strong> (Accessibility Architect & Digital Inclusion Strategist)</p>
+            <p>Licensed under Apache 2.0 · Open Source & Privacy-First</p>
+            <p>
+                <a href="https://play.google.com/store/apps/details?id=org.amasamya.accessibility" target="_blank">Google Play</a> · 
+                <a href="https://github.com/AMASAMYA/AMASAMYA" target="_blank">GitHub</a> · 
+                <a href="https://amasamya.akhileshmalani.com/privacy.html" target="_blank">Privacy Policy</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Accessibility Toolbar Script -->
+    <script>
+        function toggleHighContrast() {
+            document.body.classList.toggle('high-contrast');
+        }
+
+        let currentScale = 100;
+        function adjustFontSize(delta) {
+            currentScale += delta * 10;
+            if (currentScale < 80) currentScale = 80;
+            if (currentScale > 150) currentScale = 150;
+            document.documentElement.style.setProperty('--font-scale', currentScale + '%');
+        }
+
+        function toggleDyslexiaFont() {
+            document.body.classList.toggle('dyslexic-font');
+        }
+    </script>
+</body>
+</html>
