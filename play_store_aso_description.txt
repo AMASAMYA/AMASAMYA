@@ -1,4 +1,13 @@
 ================================================================================
+RELEASE NOTES FOR VERSION 1.0.1 (BUILD 16):
+================================================================================
+• Added Multi-Format Enterprise VPAT 2.5 INT Exporters (Executive PDF, Excel CSV, HTML, Markdown).
+• Added Interactive Onboarding Walkthrough Tutorial for first-run users.
+• Fixed duplicate TalkBack screen reader announcement bug during screen scans.
+• Redesigned accessible dashboard with version pill, quick audit metrics scorecard, and quick tool shortcuts.
+• Connected user feedback & barrier reports directly to developer email inbox at akhilesh@amasamya.com.
+
+================================================================================
 AMASAMYA - GOOGLE PLAY STORE ASO OPTIMIZED LISTING PACKAGE
 ================================================================================
 
