@@ -417,7 +417,7 @@ fun DashboardScreen(
                             .padding(horizontal = 6.dp, vertical = 2.dp)
                     ) {
                         Text(
-                            text = "v1.0.1",
+                            text = "v1.0.2",
                             color = VibrantCyan,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold
