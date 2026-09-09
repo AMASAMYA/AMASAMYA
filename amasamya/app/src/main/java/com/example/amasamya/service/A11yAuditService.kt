@@ -560,11 +560,26 @@ class A11yAuditService : AccessibilityService(), TextToSpeech.OnInitListener {
     }
 
     fun speak(text: String) {
-        if (isTtsReady && settingsManager.isAudioFeedbackEnabled) {
+        val manager = getSystemService(Context.ACCESSIBILITY_SERVICE) as? android.view.accessibility.AccessibilityManager
+        val isScreenReaderActive = manager?.isEnabled == true && (manager.isTouchExplorationEnabled || isSpokenFeedbackEnabled(manager))
+
+        if (isScreenReaderActive) {
+            // TalkBack or screen reader is running: Send TYPE_ANNOUNCEMENT so screen reader speaks natively without double-speaking
+            sendAccessibilityAnnouncement(text)
+        } else if (isTtsReady && settingsManager.isAudioFeedbackEnabled) {
+            // No screen reader active: Use internal TTS engine if audio feedback is enabled
             tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "AMASAMYA_TTS")
         }
-        sendAccessibilityAnnouncement(text)
         updateStatus(text)
+    }
+
+    private fun isSpokenFeedbackEnabled(manager: android.view.accessibility.AccessibilityManager): Boolean {
+        return try {
+            val services = manager.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_SPOKEN)
+            services != null && services.isNotEmpty()
+        } catch (e: Exception) {
+            false
+        }
     }
 
     fun showToast(message: String) {
