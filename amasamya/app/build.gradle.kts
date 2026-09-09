@@ -14,7 +14,7 @@ android {
         minSdk = 24
         targetSdk = 36
         versionCode = 17
-        versionName = "1.0.2"
+        versionName = "1.2"
     }
 
     val localProperties = Properties()
