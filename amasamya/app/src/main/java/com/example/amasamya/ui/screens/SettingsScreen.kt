@@ -232,7 +232,7 @@ fun SettingsScreen(
                     modifier = Modifier.semantics { heading() }
                 )
                 Text(
-                    text = "Select international accessibility standards (WCAG 2.2, US Section 508, European EN 301 549) to apply during testing.",
+                    text = "Select national and international accessibility standards (WCAG 2.2, GIGW 3.0, IS 17802, Section 508, EN 301 549) to apply during testing.",
                     color = TextSecondary,
                     fontSize = 14.sp
                 )
@@ -240,6 +240,9 @@ fun SettingsScreen(
 
             val standardsList = listOf(
                 SettingsManager.STANDARD_WCAG_2_2 to "W3C Web Content Accessibility Guidelines (Default)",
+                SettingsManager.STANDARD_GIGW_3_0 to "Guidelines for Indian Govt Websites & Apps (GIGW 3.0)",
+                SettingsManager.STANDARD_IS_17802 to "Bureau of Indian Standards ICT Accessibility (IS 17802)",
+                SettingsManager.STANDARD_INDIA_NATIONAL to "India National Baseline (GIGW 3.0 + IS 17802 + RPwD Act)",
                 SettingsManager.STANDARD_SECTION_508 to "US Federal Government Standard (Section 508)",
                 SettingsManager.STANDARD_EN_301_549 to "European Accessibility Act (EN 301 549)"
             )

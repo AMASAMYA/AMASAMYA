@@ -101,7 +101,8 @@ class A11yAuditService : AccessibilityService(), TextToSpeech.OnInitListener {
             density: Float,
             wcagLevel: String,
             screenBitmap: Bitmap? = null,
-            context: Context? = null
+            context: Context? = null,
+            complianceStandard: String = SettingsManager.STANDARD_WCAG_2_2
         ): List<NodeViolation> {
             val violations = mutableListOf<NodeViolation>()
             val className = node.className
@@ -115,6 +116,10 @@ class A11yAuditService : AccessibilityService(), TextToSpeech.OnInitListener {
             val widthDp = node.width / density
             val heightDp = node.height / density
 
+            val isIndianStandard = complianceStandard == SettingsManager.STANDARD_GIGW_3_0 ||
+                    complianceStandard == SettingsManager.STANDARD_IS_17802 ||
+                    complianceStandard == SettingsManager.STANDARD_INDIA_NATIONAL
+
             // Ignore off-screen, 0-sized, or hidden elements
             val right = node.left + node.width
             val bottom = node.top + node.height
@@ -123,9 +128,21 @@ class A11yAuditService : AccessibilityService(), TextToSpeech.OnInitListener {
                 return emptyList()
             }
 
-            // Rule 1: Touch Target Size (WCAG 2.2 SC 2.5.8 (AA) / 2.5.5 (AAA))
+            // Rule 1: Touch Target Size (WCAG 2.2 SC 2.5.8/2.5.5, GIGW 3.0 Sec 6.2, IS 17802-7.2.5)
             if (isClickable) {
-                if (wcagLevel == SettingsManager.LEVEL_AAA) {
+                if (isIndianStandard) {
+                    if (widthDp < 48f || heightDp < 48f) {
+                        val stdTag = if (complianceStandard == SettingsManager.STANDARD_GIGW_3_0) "GIGW 3.0 Sec 6.2" else if (complianceStandard == SettingsManager.STANDARD_IS_17802) "IS 17802-7.2.5" else "GIGW 3.0 / IS 17802"
+                        violations.add(
+                            NodeViolation(
+                                type = "Target Size ($stdTag)",
+                                severity = "Critical",
+                                description = "This button or interactive item measures only ${widthDp.toInt()} by ${heightDp.toInt()}dp. Under $stdTag and the RPwD Act 2016 mandates, interactive controls must be at least 48x48dp to ensure accessibility for persons with physical, motor, or visual disabilities.",
+                                wcagSc = "2.5.5 ($stdTag)"
+                            )
+                        )
+                    }
+                } else if (wcagLevel == SettingsManager.LEVEL_AAA) {
                     if (widthDp < 48f || heightDp < 48f) {
                         violations.add(
                             NodeViolation(
@@ -150,24 +167,46 @@ class A11yAuditService : AccessibilityService(), TextToSpeech.OnInitListener {
                 }
             }
 
-            // Rule 2: Missing Content Description / Label (WCAG 1.1.1 (A/AA/AAA) & 4.1.2)
+            // Rule 2: Missing Content Description / Label (WCAG 1.1.1 & GIGW 3.0 Sec 6.2 / IS 17802 Pt 1 Cl 7.2)
             if ((isClickable || isFocusable) && (text.isBlank() && desc.isBlank())) {
                 // Only flag if it doesn't have any text in its subtree (avoids container false positives)
                 if (!node.hasTextInSubtree) {
                     if (className != "android.view.View" && className != "android.view.ViewGroup" && className != "android.widget.FrameLayout" && className != "android.widget.LinearLayout" && className != "android.widget.RelativeLayout" || isClickable) {
+                        val legalTag = if (isIndianStandard) " [Mandated by GIGW 3.0 Sec 6.2 & IS 17802 under RPwD Act 2016]" else ""
                         violations.add(
                             NodeViolation(
-                                type = "Missing Label",
+                                type = if (isIndianStandard) "Missing Label (GIGW/IS 17802)" else "Missing Label",
                                 severity = "Critical",
-                                description = "This button or interactive item does not have a text label or name. When a screen reader user navigates to it, the app will announce it as 'unlabeled' or say nothing. This makes it impossible to know what the item does. Please add a short, clear description (such as 'Search' or 'Menu') so that screen reader users know its purpose.",
-                                wcagSc = "1.1.1"
+                                description = "This button or interactive item does not have a text label or name.$legalTag When a screen reader user navigates to it, the app will announce it as 'unlabeled' or say nothing. Please add a short, clear description (such as 'Search' or 'Menu') so that screen reader users know its purpose.",
+                                wcagSc = if (isIndianStandard) "1.1.1 (GIGW 3.0 / IS 17802)" else "1.1.1"
                             )
                         )
                     }
                 }
             }
 
-            // Rule 3: Redundant Descriptions
+            // Rule 3: Indic Language Localization Check (GIGW 3.0 Rule 6.4)
+            if (isIndianStandard && context != null) {
+                val currentLocale = context.resources.configuration.locales.get(0)
+                val lang = currentLocale?.language ?: ""
+                val indicLanguages = setOf("hi", "ta", "te", "mr", "bn", "kn", "ml", "gu", "pa", "or")
+                if (indicLanguages.contains(lang)) {
+                    val labelText = if (text.isNotBlank()) text else desc
+                    val genericEnglishPlaceholders = setOf("button", "submit", "cancel", "ok", "click here", "search", "back", "next", "continue", "login")
+                    if (labelText.isNotBlank() && genericEnglishPlaceholders.contains(labelText.trim().lowercase())) {
+                        violations.add(
+                            NodeViolation(
+                                type = "Indic Localization (GIGW 3.0)",
+                                severity = "Warning",
+                                description = "The system language is set to an Indian regional locale ('$lang'), but this control relies on an untranslated English placeholder string '$labelText'. GIGW 3.0 Rule 6.4 mandates bilingual and regional language localization for public and commercial applications.",
+                                wcagSc = "3.1.2 (GIGW 3.0)"
+                            )
+                        )
+                    }
+                }
+            }
+
+            // Rule 4: Redundant Descriptions
             if (desc.isNotBlank()) {
                 val descLower = desc.lowercase()
                 val redundantWords = listOf("button", "btn", "image", "img", "icon", "photo")
@@ -199,7 +238,7 @@ class A11yAuditService : AccessibilityService(), TextToSpeech.OnInitListener {
                 }
             }
 
-            // Rule 4: Focus Noise (Focusable element with no text/desc and no subtree text)
+            // Rule 5: Focus Noise (Focusable element with no text/desc and no subtree text)
             if (isFocusable && !isClickable && text.isBlank() && desc.isBlank() && !node.hasTextInSubtree) {
                 violations.add(
                     NodeViolation(
@@ -211,7 +250,7 @@ class A11yAuditService : AccessibilityService(), TextToSpeech.OnInitListener {
                 )
             }
 
-            // Rule 5: Text Magnification Clipping (WCAG 1.4.4 Resize Text)
+            // Rule 6: Text Magnification Clipping (WCAG 1.4.4 Resize Text)
             val fontScale = context?.resources?.configuration?.fontScale ?: 1.0f
             if (fontScale > 1.1f && text.isNotBlank()) {
                 val estimatedMinHeightDp = 18f * fontScale
@@ -227,7 +266,7 @@ class A11yAuditService : AccessibilityService(), TextToSpeech.OnInitListener {
                 }
             }
 
-            // Rule 6: Color Contrast Check (WCAG 1.4.3 (AA) / 1.4.6 (AAA)) - High Contrast Aware
+            // Rule 7: Color Contrast Check (WCAG 1.4.3/1.4.6, GIGW 3.0 Sec 4.3, IS 17802)
             val isHighContrastEnabled = try {
                 context?.let { ctx ->
                     android.provider.Settings.Secure.getInt(ctx.contentResolver, "high_text_contrast_enabled", 0) == 1
@@ -235,23 +274,26 @@ class A11yAuditService : AccessibilityService(), TextToSpeech.OnInitListener {
             } catch (e: Exception) {
                 false
             }
-            if (screenBitmap != null && node.bounds != null && text.isNotBlank() && wcagLevel != SettingsManager.LEVEL_A) {
+            val minRatio = ComplianceStandard.getMinContrastRatio(complianceStandard, wcagLevel, heightDp >= 24f || isHeading)
+            if (screenBitmap != null && node.bounds != null && text.isNotBlank() && (wcagLevel != SettingsManager.LEVEL_A || isIndianStandard)) {
                 val isLargeText = heightDp >= 24f || isHeading
                 val contrastResult = ContrastAnalyzer.analyzeContrast(screenBitmap, node.bounds, isLargeText, wcagLevel)
-                if (contrastResult != null && !contrastResult.isCompliant) {
-                    val sc = if (wcagLevel == SettingsManager.LEVEL_AAA) "1.4.6" else "1.4.3"
-                    val targetRatio = if (wcagLevel == SettingsManager.LEVEL_AAA) (if (isLargeText) 4.5f else 7.0f) else (if (isLargeText) 3.0f else 4.5f)
+                if (contrastResult != null && (contrastResult.ratio < minRatio || !contrastResult.isCompliant)) {
+                    val sc = if (isIndianStandard) "1.4.3 (GIGW 3.0 / IS 17802)" else if (wcagLevel == SettingsManager.LEVEL_AAA) "1.4.6" else "1.4.3"
+                    val targetRatio = if (isIndianStandard) minRatio else (if (wcagLevel == SettingsManager.LEVEL_AAA) (if (isLargeText) 4.5f else 7.0f) else (if (isLargeText) 3.0f else 4.5f))
                     
-                    var descMsg = "The text is hard to read because the contrast between the text color and its background is too low. The contrast score is only ${String.format(Locale.US, "%.1f", contrastResult.ratio)} out of 10, but it should be at least $targetRatio out of 10. To make it easy to read for everyone (especially those with low vision), we suggest changing the text color to ${contrastResult.suggestedColorHex}."
+                    var descMsg = "The text is hard to read because the contrast between the text color and its background is too low. The contrast score is only ${String.format(Locale.US, "%.1f", contrastResult.ratio)} out of 10, but it should be at least $targetRatio out of 10."
+                    if (isIndianStandard) {
+                        descMsg += " Mandatory under GIGW 3.0 Sec 4.3 and IS 17802 for public and enterprise digital services."
+                    }
+                    descMsg += " Recommended color fix: ${contrastResult.suggestedColorHex}."
                     if (isHighContrastEnabled) {
                         descMsg += " NOTE: System 'High Contrast Text' setting is active, but the app should natively provide sufficient contrast so it is accessible by default for all users."
-                    } else {
-                        descMsg += " Ensure the app natively supports high contrast styles, or works correctly when system high contrast overrides are active."
                     }
                     
                     violations.add(
                         NodeViolation(
-                            type = "Color Contrast",
+                            type = if (isIndianStandard) "Color Contrast (GIGW 3.0)" else "Color Contrast",
                             severity = if (wcagLevel == SettingsManager.LEVEL_AAA) "Warning" else "Critical",
                             description = descMsg,
                             wcagSc = sc
@@ -1461,8 +1503,9 @@ class A11yAuditService : AccessibilityService(), TextToSpeech.OnInitListener {
     ) {
         backgroundExecutor.execute {
             try {
+                val complianceStandard = settingsManager.complianceStandard
                 for (nodeData in nodeList) {
-                    val issues = evaluateNodeData(nodeData, density, wcagLevel, screenBitmap, this@A11yAuditService)
+                    val issues = evaluateNodeData(nodeData, density, wcagLevel, screenBitmap, this@A11yAuditService, complianceStandard)
                     for (issue in issues) {
                         val dbIssue = ElementIssue(
                             sessionId = sessionId,
@@ -1621,7 +1664,7 @@ class A11yAuditService : AccessibilityService(), TextToSpeech.OnInitListener {
                     isEditable = isEditable,
                     liveRegion = liveRegion
                 )
-                val issues = evaluateNodeData(nodeData, density, wcagLevel, null, this@A11yAuditService)
+                val issues = evaluateNodeData(nodeData, density, wcagLevel, null, this@A11yAuditService, settingsManager.complianceStandard)
                 if (issues.isNotEmpty()) {
                     readingOrderIndex++
                     for (issue in issues) {
