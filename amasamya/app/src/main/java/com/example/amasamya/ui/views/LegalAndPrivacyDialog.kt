@@ -150,7 +150,7 @@ fun LegalAndPrivacyDialog(
         dismissButton = {
             TextButton(
                 onClick = {
-                    val url = if (selectedTab == 0) "https://amasamya.akhileshmalani.com/privacy.html" else "https://amasamya.akhileshmalani.com/terms.html"
+                    val url = if (selectedTab == 0) "https://amasamya.com/" else "https://amasamya.com/accessibility"
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                     context.startActivity(intent)
                 }

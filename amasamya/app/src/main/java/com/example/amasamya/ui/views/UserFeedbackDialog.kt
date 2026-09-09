@@ -1,6 +1,7 @@
 package com.example.amasamya.ui.views
 
 import android.content.Context
+import android.content.Intent
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityManager
 import androidx.compose.foundation.background
@@ -130,8 +131,11 @@ fun UserFeedbackDialog(
                 Button(
                     onClick = {
                         if (feedbackText.isNotBlank()) {
+                            val textToSend = feedbackText
+                            val emailToSend = userEmail
                             isSubmitted = true
                             announceFeedbackSubmission()
+                            sendFeedbackEmail(context, emailToSend, textToSend)
                         }
                     },
                     enabled = feedbackText.isNotBlank(),
@@ -141,7 +145,7 @@ fun UserFeedbackDialog(
                         contentDescription = "Submit Feedback Button"
                     }
                 ) {
-                    Text("Submit Feedback", fontWeight = FontWeight.Bold)
+                    Text("Submit Feedback via Email 📧", fontWeight = FontWeight.Bold)
                 }
             }
         },
@@ -153,4 +157,27 @@ fun UserFeedbackDialog(
             }
         }
     )
+}
+
+private fun sendFeedbackEmail(context: Context, userEmail: String, feedbackText: String) {
+    try {
+        val intent = Intent(Intent.ACTION_SENDTO).apply {
+            data = android.net.Uri.parse("mailto:akhilesh@amasamya.com")
+            putExtra(Intent.EXTRA_SUBJECT, "[AMASAMYA App Feedback] User Suggestion / Barrier Report")
+            val body = StringBuilder()
+            body.append("AMASAMYA User Feedback & Barrier Report\n\n")
+            body.append("From Email: ").append(if (userEmail.isNotBlank()) userEmail else "Not provided").append("\n")
+            body.append("App Version: v1.0.1 (Build 16)\n")
+            body.append("Device: ").append(android.os.Build.MANUFACTURER).append(" ").append(android.os.Build.MODEL).append(" (Android ").append(android.os.Build.VERSION.RELEASE).append(")\n\n")
+            body.append("Feedback / Barrier Details:\n")
+            body.append(feedbackText).append("\n\n")
+            body.append("---\nSent from AMASAMYA Accessibility Engine")
+            putExtra(Intent.EXTRA_TEXT, body.toString())
+        }
+        val chooser = Intent.createChooser(intent, "Send feedback to akhilesh@amasamya.com via...")
+        chooser.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        context.startActivity(chooser)
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
 }
