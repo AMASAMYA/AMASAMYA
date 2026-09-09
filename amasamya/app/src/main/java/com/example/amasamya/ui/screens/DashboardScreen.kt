@@ -390,32 +390,62 @@ fun DashboardScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 20.dp),
+                    .padding(horizontal = 20.dp, vertical = 16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "AMASAMYA",
-                    fontWeight = FontWeight.ExtraBold,
-                    style = TextStyle(
-                        brush = Brush.linearGradient(
-                            colors = listOf(VibrantCyan, ElectricLavender)
-                        )
-                    ),
-                    fontSize = 24.sp,
-                    letterSpacing = 2.sp,
-                    modifier = Modifier.semantics {
-                        heading()
-                    }
-                )
-
-                IconButton(
-                    onClick = { showOnboardingDialog = true },
-                    modifier = Modifier.semantics {
-                        contentDescription = "Replay Interactive Onboarding Walkthrough and Feature Guide"
-                    }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text("❓", fontSize = 20.sp)
+                    Text(
+                        text = "AMASAMYA",
+                        fontWeight = FontWeight.ExtraBold,
+                        style = TextStyle(
+                            brush = Brush.linearGradient(
+                                colors = listOf(VibrantCyan, ElectricLavender)
+                            )
+                        ),
+                        fontSize = 24.sp,
+                        letterSpacing = 2.sp,
+                        modifier = Modifier.semantics { heading() }
+                    )
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(VibrantCyan.copy(alpha = 0.2f))
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = "v1.0.1",
+                            color = VibrantCyan,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TextButton(
+                        onClick = { showOnboardingDialog = true },
+                        modifier = Modifier.semantics {
+                            contentDescription = "Replay Interactive Onboarding Walkthrough and Feature Guide"
+                        }
+                    ) {
+                        Text("❓ Tutorial", color = PureWhite, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    }
+
+                    IconButton(
+                        onClick = { onNavigate(SettingsRoute) },
+                        modifier = Modifier.semantics {
+                            contentDescription = "Open Settings"
+                        }
+                    ) {
+                        Text("⚙️", fontSize = 18.sp)
+                    }
                 }
             }
 
@@ -553,6 +583,66 @@ fun DashboardScreen(
                                     }
                                 )
                             }
+                        }
+                    }
+                }
+                
+                // Quick Metric Scorecard Row
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    // Profile Metric Card
+                    Surface(
+                        color = GlassySurface,
+                        shape = RoundedCornerShape(12.dp),
+                        border = BorderStroke(1.dp, Color(0xFF2C3246)),
+                        modifier = Modifier.weight(1f).semantics(mergeDescendants = true) {}
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text("🛡️ WCAG 2.2", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = VibrantCyan)
+                            Text("Level ${settingsManager.wcagLevel}", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = PureWhite)
+                            Text("GIGW / IS 17802", fontSize = 10.sp, color = TextSecondary)
+                        }
+                    }
+
+                    // Total Sessions Card
+                    Surface(
+                        color = GlassySurface,
+                        shape = RoundedCornerShape(12.dp),
+                        border = BorderStroke(1.dp, Color(0xFF2C3246)),
+                        modifier = Modifier.weight(1f).semantics(mergeDescendants = true) {}
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text("📊 Audits", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = NeonGreen)
+                            Text("${sessions.size} Saved", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = PureWhite)
+                            Text("Local History", fontSize = 10.sp, color = TextSecondary)
+                        }
+                    }
+
+                    // VPAT Readiness Card
+                    Surface(
+                        color = GlassySurface,
+                        shape = RoundedCornerShape(12.dp),
+                        border = BorderStroke(1.dp, Color(0xFF2C3246)),
+                        modifier = Modifier.weight(1f).semantics(mergeDescendants = true) {}
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text("📜 VPAT 2.5", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = AmberGold)
+                            Text("ACR Ready", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = PureWhite)
+                            Text("PDF / Excel", fontSize = 10.sp, color = TextSecondary)
                         }
                     }
                 }

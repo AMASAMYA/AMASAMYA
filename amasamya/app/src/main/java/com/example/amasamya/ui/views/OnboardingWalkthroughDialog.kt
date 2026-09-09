@@ -54,10 +54,10 @@ fun OnboardingWalkthroughDialog(
             tipText = "You can also test focus navigation using our built-in Screen Reader Simulator Mode."
         ),
         OnboardingStep(
-            title = "3. Executive VPAT & Code Fixes",
-            description = "View instant audit scores, copy Jetpack Compose & XML code fixes, and export official VPAT 2.4 ACR compliance reports in HTML or Markdown.",
+            title = "3. Enterprise VPAT 2.5 Exporters",
+            description = "View audit scores, copy Jetpack Compose UI fixes, and export official VPAT 2.5 ACR compliance reports in Executive PDF, Excel CSV, HTML, or Markdown format.",
             icon = Icons.Default.Share,
-            tipText = "VPAT reports map findings directly to WCAG 2.2, Section 508, and EN 301 549 tables."
+            tipText = "VPAT reports map findings directly to WCAG 2.2, GIGW 3.0, IS 17802, Section 508, and EN 301 549 tables."
         )
     )
 
