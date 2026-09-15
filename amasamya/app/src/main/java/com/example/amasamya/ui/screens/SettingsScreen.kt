@@ -460,7 +460,7 @@ fun SettingsScreen(
                             fontSize = 16.sp
                         )
                         Text(
-                            text = "Show a floating scan button on the screen to start/stop scan sessions. If disabled, use notification controls instead.",
+                            text = "Show a floating scan button docked near the top-right screen edge (clear of keyboard & bottom bar). Automatically hides while typing. If disabled, use notification controls or voice commands.",
                             color = TextSecondary,
                             fontSize = 13.sp
                         )

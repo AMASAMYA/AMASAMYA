@@ -567,6 +567,18 @@ class A11yAuditService : AccessibilityService(), TextToSpeech.OnInitListener {
         // Apply setting dynamically on connection
         updateAccessibilityButtonState(settingsManager.isFloatingButtonEnabled)
         updateDiagnosticsState()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            try {
+                accessibilityButtonController.registerAccessibilityButtonCallback(object : AccessibilityButtonController.AccessibilityButtonCallback() {
+                    override fun onClicked(controller: AccessibilityButtonController) {
+                        handleFloatingButtonClick()
+                    }
+                })
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to register accessibility button callback", e)
+            }
+        }
     }
 
     override fun onDestroy() {
@@ -687,7 +699,39 @@ class A11yAuditService : AccessibilityService(), TextToSpeech.OnInitListener {
         val bounds: Rect
     )
 
+    private var isFloatingTemporarilyHidden: Boolean = false
+
+    private fun checkKeyboardAndManageOverlay(event: AccessibilityEvent) {
+        if (!settingsManager.isFloatingButtonEnabled) return
+
+        if (event.eventType == AccessibilityEvent.TYPE_VIEW_FOCUSED || event.eventType == AccessibilityEvent.TYPE_VIEW_CLICKED) {
+            val source = event.source
+            if (source != null) {
+                val isEdit = source.isEditable || (source.className?.toString()?.contains("EditText") == true)
+                if (isEdit) {
+                    if (!isFloatingTemporarilyHidden) {
+                        isFloatingTemporarilyHidden = true
+                        hideFloatingButton()
+                    }
+                } else if (isFloatingTemporarilyHidden) {
+                    isFloatingTemporarilyHidden = false
+                    showFloatingButton()
+                }
+                source.recycle()
+            }
+        } else if (event.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
+            val className = event.className?.toString() ?: ""
+            if (!className.contains("inputmethod") && !className.contains("SoftInput") && isFloatingTemporarilyHidden) {
+                isFloatingTemporarilyHidden = false
+                showFloatingButton()
+            }
+        }
+    }
+
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
+        // Auto-hide floating overlay while typing or soft keyboard is active
+        checkKeyboardAndManageOverlay(event)
+
         // Run live diagnostics overlays first (if enabled)
         handleLiveDiagnostics(event)
 
@@ -1303,9 +1347,9 @@ class A11yAuditService : AccessibilityService(), TextToSpeech.OnInitListener {
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
             PixelFormat.TRANSLUCENT
         ).apply {
-            gravity = Gravity.BOTTOM or Gravity.END
-            x = (24 * density).toInt() // Right margin
-            y = (120 * density).toInt() // Offset bottom to float above system button
+            gravity = Gravity.TOP or Gravity.END
+            x = (12 * density).toInt() // Docked near right border
+            y = (200 * density).toInt() // Upper-right edge offset (completely clear of keyboard & bottom navigation)
         }
         
         val gestureDetector = android.view.GestureDetector(this, object : android.view.GestureDetector.SimpleOnGestureListener() {
