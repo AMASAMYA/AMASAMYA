@@ -8,3 +8,4 @@ import kotlinx.serialization.Serializable
 @Serializable data object History : NavKey
 @Serializable data class ReportDetail(val sessionId: Long) : NavKey
 @Serializable data class FocusPath(val sessionId: Long, val screenName: String) : NavKey
+@Serializable data object PdfRemediation : NavKey

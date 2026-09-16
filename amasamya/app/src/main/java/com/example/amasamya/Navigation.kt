@@ -60,6 +60,11 @@ fun MainNavigation() {
             modifier = Modifier.safeDrawingPadding()
           )
         }
+        entry<PdfRemediation> {
+          com.example.amasamya.ui.screens.PdfRemediationScreen(
+            onNavigateBack = { backStack.removeLastOrNull() }
+          )
+        }
       },
   )
 }

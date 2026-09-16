@@ -417,7 +417,7 @@ fun DashboardScreen(
                             .padding(horizontal = 6.dp, vertical = 2.dp)
                     ) {
                         Text(
-                            text = "v1.3",
+                            text = "v1.4",
                             color = VibrantCyan,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold
@@ -939,17 +939,15 @@ fun DashboardScreen(
                         ),
                         border = BorderStroke(
                             width = 1.dp,
-                            brush = Brush.linearGradient(
-                                colors = listOf(VibrantCyan, ElectricLavender)
-                            )
+                            color = Color(0xFF2C3246)
                         ),
                         contentPadding = PaddingValues(16.dp),
                         modifier = Modifier
                             .weight(1f)
                             .clearAndSetSemantics {
                                 role = Role.Button
-                                contentDescription = "Settings. Configure WCAG 2.2 audit rules level."
-                                onClick(label = "Configure WCAG level and feedback rules") {
+                                contentDescription = "Settings. Configure accessibility parameters and audio preferences."
+                                onClick(label = "Open settings screen") {
                                     onNavigate(SettingsRoute)
                                     true
                                 }
@@ -963,15 +961,67 @@ fun DashboardScreen(
                                 text = "Settings",
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = VibrantCyan
+                                color = PureWhite
                             )
                             Text(
-                                text = "Configure WCAG 2.2 audit rules level (A/AA/AAA).",
+                                text = "Configure compliance standards.",
                                 color = TextSecondary,
                                 fontSize = 13.sp,
                                 lineHeight = 18.sp
                             )
                         }
+                    }
+                }
+
+                // DocRemediate PDF Studio Card
+                Button(
+                    onClick = { onNavigate(com.example.amasamya.PdfRemediation) },
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = GlassySurface,
+                        contentColor = PureWhite
+                    ),
+                    border = BorderStroke(
+                        width = 1.dp,
+                        brush = Brush.linearGradient(
+                            colors = listOf(VibrantCyan, NeonGreen)
+                        )
+                    ),
+                    contentPadding = PaddingValues(16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clearAndSetSemantics {
+                            role = Role.Button
+                            contentDescription = "DocRemediate Studio. Remediate inaccessible PDFs into 100% WCAG PDF/UA documents."
+                            onClick(label = "Open PDF Remediation Studio") {
+                                onNavigate(com.example.amasamya.PdfRemediation)
+                                true
+                            }
+                        }
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                text = "📄 DocRemediate Studio",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = VibrantCyan
+                            )
+                            Text(
+                                text = "Remediate scanned PDFs into 100% WCAG & PDF/UA tagged documents.",
+                                color = TextSecondary,
+                                fontSize = 13.sp,
+                                lineHeight = 18.sp
+                            )
+                        }
+                        Text("➔", color = VibrantCyan, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                     }
                 }
 
