@@ -86,9 +86,17 @@ class VoiceCommandManager(
     private fun processCommand(text: String) {
         val service = A11yAuditService.instance
         when {
-            text.contains("scan") -> {
+            text.contains("scan") || text.contains("quick audit") -> {
                 onCommandRecognized("Executing voice command: Scan Screen")
                 service?.performFullScreenScan()
+            }
+            text.contains("hide button") || text.contains("hide overlay") -> {
+                onCommandRecognized("Executing voice command: Hide Floating Button")
+                service?.hideFloatingButton()
+            }
+            text.contains("show button") || text.contains("show overlay") -> {
+                onCommandRecognized("Executing voice command: Show Floating Button")
+                service?.showFloatingButton()
             }
             text.contains("start session") || text.contains("start audit") || text.contains("start recording") -> {
                 onCommandRecognized("Executing voice command: Start Session")
@@ -100,7 +108,7 @@ class VoiceCommandManager(
             }
             text.contains("summary") || text.contains("status") || text.contains("read report") -> {
                 onCommandRecognized("Executing voice command: Announcing Summary")
-                service?.speak("AMASAMYA Service Active. Say scan screen or stop session to control audits.")
+                service?.speak("AMASAMYA Service Active. Say scan screen, hide button, or stop session.")
             }
         }
     }

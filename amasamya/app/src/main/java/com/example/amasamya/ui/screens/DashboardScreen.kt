@@ -672,15 +672,40 @@ fun DashboardScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
+                                val scorecard = com.example.amasamya.utils.AccessibilityScorecard.calculateScorecard(issues = emptyList(), totalElementsScanned = 100)
+                                val gradeColor = when {
+                                    score >= 95 -> NeonGreen
+                                    score >= 85 -> VibrantCyan
+                                    score >= 70 -> AmberGold
+                                    else -> NeonRed
+                                }
                                 Column {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        Text(
+                                            text = "$score%",
+                                            fontSize = 36.sp,
+                                            fontWeight = FontWeight.ExtraBold,
+                                            color = PureWhite
+                                        )
+                                        Box(
+                                            modifier = Modifier
+                                                .clip(RoundedCornerShape(6.dp))
+                                                .background(gradeColor.copy(alpha = 0.2f))
+                                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                                        ) {
+                                            Text(
+                                                text = "Grade ${when { score >= 95 -> "A+" ; score >= 85 -> "A" ; score >= 70 -> "B" ; score >= 50 -> "C" ; else -> "F" }}",
+                                                color = gradeColor,
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 14.sp
+                                            )
+                                        }
+                                    }
                                     Text(
-                                        text = "$score%",
-                                        fontSize = 36.sp,
-                                        fontWeight = FontWeight.ExtraBold,
-                                        color = PureWhite
-                                    )
-                                    Text(
-                                        text = "Based on WCAG 2.2 rules penalty score",
+                                        text = "Based on WCAG 2.2, GIGW 3.0 & IS 17802 rules",
                                         color = TextSecondary,
                                         fontSize = 12.sp
                                     )

@@ -861,6 +861,19 @@ class A11yAuditService : AccessibilityService(), TextToSpeech.OnInitListener {
                         scanWindowForTouchTargets()
                     }
 
+                    // 6. Audio-Haptic Radar Spatial Feedback
+                    val isUnlabelled = (source.isClickable || source.isFocusable) && source.text.isNullOrBlank() && source.contentDescription.isNullOrBlank()
+                    val density = resources.displayMetrics.density
+                    val widthDp = rect.width() / density
+                    val heightDp = rect.height() / density
+                    val isSmall = source.isClickable && (widthDp < 48f || heightDp < 48f)
+
+                    if (isUnlabelled) {
+                        com.example.amasamya.utils.AudioHapticRadar.playFeedback(this, com.example.amasamya.utils.AudioHapticRadar.TargetType.CRITICAL_UNLABELLED)
+                    } else if (isSmall) {
+                        com.example.amasamya.utils.AudioHapticRadar.playFeedback(this, com.example.amasamya.utils.AudioHapticRadar.TargetType.WARNING_SMALL_TARGET)
+                    }
+
                     source.recycle()
                 }
             }
@@ -1352,11 +1365,41 @@ class A11yAuditService : AccessibilityService(), TextToSpeech.OnInitListener {
             y = (200 * density).toInt() // Upper-right edge offset (completely clear of keyboard & bottom navigation)
         }
         
+        var isCollapsedToEdge = false
         val gestureDetector = android.view.GestureDetector(this, object : android.view.GestureDetector.SimpleOnGestureListener() {
             override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
+                if (isCollapsedToEdge) {
+                    isCollapsedToEdge = false
+                    params.width = buttonSize
+                    params.x = (12 * density).toInt()
+                    try { wm.updateViewLayout(container, params) } catch (ex: Exception) {}
+                    speak("Expanded scan button.")
+                    return true
+                }
                 container.performClick()
                 return true
             }
+
+            override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+                if (e1 == null) return false
+                val dx = e2.rawX - e1.rawX
+                val dy = e2.rawY - e1.rawY
+
+                if (Math.abs(dy) > Math.abs(dx) && velocityY > 600) {
+                    speak("Quick scan triggered.")
+                    handleFloatingButtonClick()
+                    return true
+                } else if (dx > 200 && velocityX > 500) {
+                    isCollapsedToEdge = true
+                    params.width = (24 * density).toInt()
+                    params.x = 0
+                    try { wm.updateViewLayout(container, params) } catch (ex: Exception) {}
+                    speak("Collapsed to edge tab.")
+                    return true
+                }
+                return false
+            }
+
             override fun onLongPress(e: MotionEvent) {
                 container.performLongClick()
             }

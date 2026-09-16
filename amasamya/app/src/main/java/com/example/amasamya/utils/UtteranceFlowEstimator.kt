@@ -29,8 +29,11 @@ object UtteranceFlowEstimator {
     fun estimateScreenFlow(
         screenName: String,
         issues: List<ElementIssue>,
-        focusNodes: List<FocusPathNode>
+        focusNodes: List<FocusPathNode>,
+        languageCode: String = "en"
     ): ScreenUtteranceReport {
+        val isIndicLanguage = languageCode in setOf("hi", "ta", "te", "mr", "bn", "kn", "ml", "gu", "pa")
+        val wordsPerSecond = if (isIndicLanguage) 2.4 else WORDS_PER_SECOND
         val screenIssues = issues.filter { it.screenName == screenName }
         val screenFocusNodes = focusNodes.filter { it.screenName == screenName }
 
