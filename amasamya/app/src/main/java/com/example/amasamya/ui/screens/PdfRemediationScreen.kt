@@ -48,6 +48,28 @@ fun PdfRemediationScreen(
 
     var statusMessage by remember { mutableStateOf("PDF structure loaded. 100% WCAG PDF/UA compliant.") }
 
+    val settingsManager = remember { com.example.amasamya.settings.SettingsManager(context) }
+    var showInstructionDialog by remember { mutableStateOf(settingsManager.shouldShowFeatureInstruction("pdf_remediation")) }
+
+    if (showInstructionDialog) {
+        com.example.amasamya.ui.views.FeatureInstructionDialog(
+            featureTitle = "DocRemediate Studio",
+            featureDescription = "Pioneer mobile PDF/UA accessibility structure tagging and remediation studio.",
+            steps = listOf(
+                "Select a PDF document or sample text to analyze structure tags.",
+                "Review auto-tagged Headings (H1, H2), Paragraphs (P), Tables, and Figures.",
+                "Tap on any untagged Figure to add or edit accessible Alt-Text descriptions.",
+                "Generate and export your certified PDF/UA compliance report."
+            ),
+            onDismiss = { doNotShowAgain ->
+                if (doNotShowAgain) {
+                    settingsManager.setFeatureInstructionDoNotShowAgain("pdf_remediation", true)
+                }
+                showInstructionDialog = false
+            }
+        )
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()

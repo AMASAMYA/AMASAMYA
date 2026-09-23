@@ -42,6 +42,11 @@ class OverlayCanvasView @JvmOverloads constructor(
     var showFocusTrail = false
     var showTouchTargets = false
     var showCaptions = false
+    var activeSimulatorFocusRect: Rect? = null
+        set(value) {
+            field = value
+            postInvalidate()
+        }
     var cvdMode: String = com.example.amasamya.settings.SettingsManager.CVD_NONE
         set(value) {
             field = value
@@ -215,6 +220,21 @@ class OverlayCanvasView @JvmOverloads constructor(
             canvas.translate(rectLeft + padding, rectTop + padding)
             staticLayout.draw(canvas)
             canvas.restore()
+        }
+
+        // 4. Draw Active Simulator Focus Ring
+        activeSimulatorFocusRect?.let { r ->
+            val focusFillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = Color.parseColor("#3300E5FF")
+                style = Paint.Style.FILL
+            }
+            val focusRingPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = Color.parseColor("#00E5FF")
+                strokeWidth = 8f
+                style = Paint.Style.STROKE
+            }
+            canvas.drawRect(r, focusFillPaint)
+            canvas.drawRect(r, focusRingPaint)
         }
     }
 

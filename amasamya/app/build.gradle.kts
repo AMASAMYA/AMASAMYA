@@ -13,8 +13,8 @@ android {
         applicationId = "org.amasamya.accessibility"
         minSdk = 24
         targetSdk = 36
-        versionCode = 19
-        versionName = "1.4"
+        versionCode = 20
+        versionName = "1.5"
     }
 
     val localProperties = Properties()

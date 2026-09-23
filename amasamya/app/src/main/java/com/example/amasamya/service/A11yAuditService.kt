@@ -1088,39 +1088,59 @@ class A11yAuditService : AccessibilityService(), TextToSpeech.OnInitListener {
     private var overlayCanvasView: OverlayCanvasView? = null
     private var simulatorOverlayView: SimulatorOverlayView? = null
     private var voiceCommandManager: VoiceCommandManager? = null
+    private var simulatorFocusIndex: Int = -1
+
+    fun updateSimulatorFocusRect(rect: Rect?) {
+        if (rect != null) {
+            showOverlayCanvas()
+            overlayCanvasView?.activeSimulatorFocusRect = rect
+        } else {
+            overlayCanvasView?.activeSimulatorFocusRect = null
+        }
+    }
 
     fun simulateFocusNext() {
-        val root = rootInActiveWindow ?: return
+        val root = rootInActiveWindow ?: run {
+            speak("No active screen content found")
+            return
+        }
         val focusableNodes = mutableListOf<AccessibilityNodeInfo>()
         collectFocusableNodes(root, focusableNodes)
         if (focusableNodes.isNotEmpty()) {
-            val currentlyFocused = focusableNodes.indexOfFirst { it.isAccessibilityFocused }
-            val nextIndex = if (currentlyFocused >= 0 && currentlyFocused < focusableNodes.size - 1) currentlyFocused + 1 else 0
-            val target = focusableNodes[nextIndex]
+            simulatorFocusIndex = (simulatorFocusIndex + 1) % focusableNodes.size
+            val target = focusableNodes[simulatorFocusIndex]
             target.performAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS)
             val rect = Rect()
             target.getBoundsInScreen(rect)
+            updateSimulatorFocusRect(rect)
             simulatorOverlayView?.updateFocusRect(rect)
-            val label = target.contentDescription?.toString() ?: target.text?.toString() ?: "Item"
+            val label = target.contentDescription?.toString() ?: target.text?.toString() ?: "Element ${simulatorFocusIndex + 1}"
             speak(label)
+        } else {
+            speak("No focusable elements found")
         }
         root.recycle()
     }
 
     fun simulateFocusPrevious() {
-        val root = rootInActiveWindow ?: return
+        val root = rootInActiveWindow ?: run {
+            speak("No active screen content found")
+            return
+        }
         val focusableNodes = mutableListOf<AccessibilityNodeInfo>()
         collectFocusableNodes(root, focusableNodes)
         if (focusableNodes.isNotEmpty()) {
-            val currentlyFocused = focusableNodes.indexOfFirst { it.isAccessibilityFocused }
-            val prevIndex = if (currentlyFocused > 0) currentlyFocused - 1 else focusableNodes.size - 1
-            val target = focusableNodes[prevIndex]
+            simulatorFocusIndex = if (simulatorFocusIndex > 0) simulatorFocusIndex - 1 else focusableNodes.size - 1
+            val target = focusableNodes[simulatorFocusIndex]
             target.performAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS)
             val rect = Rect()
             target.getBoundsInScreen(rect)
+            updateSimulatorFocusRect(rect)
             simulatorOverlayView?.updateFocusRect(rect)
-            val label = target.contentDescription?.toString() ?: target.text?.toString() ?: "Item"
+            val label = target.contentDescription?.toString() ?: target.text?.toString() ?: "Element ${simulatorFocusIndex + 1}"
             speak(label)
+        } else {
+            speak("No focusable elements found")
         }
         root.recycle()
     }
@@ -1129,10 +1149,23 @@ class A11yAuditService : AccessibilityService(), TextToSpeech.OnInitListener {
         val root = rootInActiveWindow ?: return
         val focusableNodes = mutableListOf<AccessibilityNodeInfo>()
         collectFocusableNodes(root, focusableNodes)
-        val currentlyFocusedNode = focusableNodes.find { it.isAccessibilityFocused }
-        if (currentlyFocusedNode != null) {
-            currentlyFocusedNode.performAction(AccessibilityNodeInfo.ACTION_CLICK)
-            speak("Activated")
+        if (simulatorFocusIndex in focusableNodes.indices) {
+            val target = focusableNodes[simulatorFocusIndex]
+            val clicked = target.performAction(AccessibilityNodeInfo.ACTION_CLICK) ||
+                          (target.parent?.performAction(AccessibilityNodeInfo.ACTION_CLICK) == true)
+            if (clicked) {
+                speak("Activated")
+            } else {
+                speak("Cannot activate element")
+            }
+        } else {
+            val focused = focusableNodes.find { it.isAccessibilityFocused }
+            if (focused != null) {
+                focused.performAction(AccessibilityNodeInfo.ACTION_CLICK)
+                speak("Activated")
+            } else {
+                speak("No element selected to activate")
+            }
         }
         root.recycle()
     }
@@ -1244,7 +1277,7 @@ class A11yAuditService : AccessibilityService(), TextToSpeech.OnInitListener {
         
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.WRAP_CONTENT,
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
             } else {
@@ -1254,11 +1287,14 @@ class A11yAuditService : AccessibilityService(), TextToSpeech.OnInitListener {
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
             WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
             PixelFormat.TRANSLUCENT
-        )
+        ).apply {
+            gravity = Gravity.BOTTOM
+        }
 
         try {
             wm.addView(view, params)
             simulatorOverlayView = view
+            simulatorFocusIndex = -1
             Log.d(TAG, "Added SimulatorOverlayView to WindowManager")
         } catch (e: Exception) {
             Log.e(TAG, "Error adding SimulatorOverlayView", e)
@@ -1271,6 +1307,8 @@ class A11yAuditService : AccessibilityService(), TextToSpeech.OnInitListener {
         try {
             wm.removeView(view)
             simulatorOverlayView = null
+            simulatorFocusIndex = -1
+            updateSimulatorFocusRect(null)
             Log.d(TAG, "Removed SimulatorOverlayView from WindowManager")
         } catch (e: Exception) {
             Log.e(TAG, "Error removing SimulatorOverlayView", e)

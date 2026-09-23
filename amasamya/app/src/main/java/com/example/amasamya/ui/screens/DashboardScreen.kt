@@ -317,10 +317,19 @@ fun DashboardScreen(
                 }
             },
             confirmButton = {
-                TextButton(
-                    onClick = { showWhatsNewDialog = false }
+                Button(
+                    onClick = { showWhatsNewDialog = false },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = VibrantCyan,
+                        contentColor = DeepSpace
+                    ),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.semantics {
+                        role = Role.Button
+                        contentDescription = "Awesome, close whats new dialog"
+                    }
                 ) {
-                    Text("Awesome", color = VibrantCyan)
+                    Text("Awesome", fontWeight = FontWeight.Bold)
                 }
             },
             containerColor = DeepSpace,
@@ -417,7 +426,7 @@ fun DashboardScreen(
                             .padding(horizontal = 6.dp, vertical = 2.dp)
                     ) {
                         Text(
-                            text = "v1.4",
+                            text = "v1.5",
                             color = VibrantCyan,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold

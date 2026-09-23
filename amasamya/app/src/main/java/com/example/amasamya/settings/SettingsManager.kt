@@ -159,4 +159,12 @@ class SettingsManager(context: Context) {
         set(value) {
             prefs.edit().putBoolean(KEY_SIMULATOR_MODE, value).apply()
         }
+
+    fun shouldShowFeatureInstruction(featureKey: String): Boolean {
+        return prefs.getBoolean("show_instruction_$featureKey", true)
+    }
+
+    fun setFeatureInstructionDoNotShowAgain(featureKey: String, doNotShowAgain: Boolean) {
+        prefs.edit().putBoolean("show_instruction_$featureKey", !doNotShowAgain).apply()
+    }
 }

@@ -66,6 +66,7 @@ fun SettingsScreen(
     var legalDialogTab by remember { mutableIntStateOf(0) }
     var showFeedbackDialog by remember { mutableStateOf(false) }
     var showWalkthroughTour by remember { mutableStateOf(false) }
+    var activeInstructionFeature by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
         val manager = context.getSystemService(android.content.Context.ACCESSIBILITY_SERVICE) as android.view.accessibility.AccessibilityManager
@@ -1392,6 +1393,14 @@ fun SettingsScreen(
                     ) {
                         Text("❓ Replay Onboarding Walkthrough", color = PureWhite)
                     }
+
+                    OutlinedButton(
+                        onClick = { activeInstructionFeature = "pdf_remediation" },
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.fillMaxWidth().semantics { contentDescription = "Open Unique Feature Setup Instructions Guide" }
+                    ) {
+                        Text("💡 View Unique Feature Setup Instructions", color = VibrantCyan, fontWeight = FontWeight.Bold)
+                    }
                 }
             }
 
@@ -1412,6 +1421,89 @@ fun SettingsScreen(
                 com.example.amasamya.ui.views.OnboardingWalkthroughDialog(
                     onDismiss = { showWalkthroughTour = false },
                     onComplete = { showWalkthroughTour = false }
+                )
+            }
+
+            if (activeInstructionFeature != null) {
+                val targetKey = activeInstructionFeature!!
+                val (title, desc, steps) = when (targetKey) {
+                    "pdf_remediation" -> Triple(
+                        "DocRemediate Studio",
+                        "Pioneer mobile PDF/UA accessibility structure tagging and remediation studio.",
+                        listOf(
+                            "Select a PDF document or sample text to analyze structure tags.",
+                            "Review auto-tagged Headings (H1, H2), Paragraphs (P), Tables, and Figures.",
+                            "Tap on any untagged Figure to add or edit accessible Alt-Text descriptions.",
+                            "Generate and export your certified PDF/UA compliance report."
+                        )
+                    )
+                    "audio_haptic_radar" -> Triple(
+                        "Audio-Haptic Touch Target Radar",
+                        "Real-time spatial audio pitches and vibration pulse feedback when exploring touch targets.",
+                        listOf(
+                            "Low pitch tone (220 Hz) + Heavy pulse: Unlabelled touch barrier.",
+                            "Medium pitch tone (440 Hz) + Double pulse: Touch target size under 48dp.",
+                            "High pitch tone (880 Hz) + Light buzz: Fully compliant touch target."
+                        )
+                    )
+                    "voice_commands" -> Triple(
+                        "Voice Quick-Audit Commands",
+                        "Hands-free voice recognition triggers to perform accessibility audits.",
+                        listOf(
+                            "Ensure Voice Quick-Audit toggle is enabled in Settings.",
+                            "Say 'Scan Screen' to launch an immediate full-screen accessibility audit.",
+                            "Say 'Scan Contrast', 'Check Labels', 'Export VPAT', 'Hide Button', or 'Show Button'."
+                        )
+                    )
+                    "indic_utterance_flow" -> Triple(
+                        "Indic Language Speech Engine",
+                        "Measures TTS reading duration and screen reader friction for 9 Indian regional languages.",
+                        listOf(
+                            "Select your target Indic language (Hindi, Tamil, Telugu, Marathi, Bengali, etc.).",
+                            "Audit screen elements calibrated against Indic TTS rates (3.8 syllables/sec baseline).",
+                            "Review total reading duration and optimize label verbosity for Indic TalkBack users."
+                        )
+                    )
+                    "simulator_mode" -> Triple(
+                        "Guided Screen Reader Simulator",
+                        "Simulate screen reader focus navigation and element activation without system TalkBack.",
+                        listOf(
+                            "Toggle Guided Screen Reader Simulator ON in Settings.",
+                            "Use ◀ PREV and NEXT ▶ on the bottom bar to step focus across screen elements.",
+                            "Watch the cyan focus ring and hear spoken TTS element descriptions.",
+                            "Tap ACTIVATE to trigger the focused element."
+                        )
+                    )
+                    "cvd_simulator" -> Triple(
+                        "Color Vision Deficiency Simulator",
+                        "Simulate Protanopia, Deuteranopia, Tritanopia, or Monochromacy on screen.",
+                        listOf(
+                            "Select a color vision filter mode from Settings.",
+                            "Observe real-time color transformation rendered across screen overlays.",
+                            "Verify that critical information does not rely solely on color indicators."
+                        )
+                    )
+                    else -> Triple(
+                        "Instant Accessibility Scorecard",
+                        "5-second overall screen compliance score rating from Grade A+ to F.",
+                        listOf(
+                            "View your real-time screen grade displayed on the main Dashboard hero card.",
+                            "Tap the Scorecard widget to view detailed compliance breakdown (0 to 100%).",
+                            "Follow recommended fixes to elevate your overall compliance score."
+                        )
+                    )
+                }
+
+                com.example.amasamya.ui.views.FeatureInstructionDialog(
+                    featureTitle = title,
+                    featureDescription = desc,
+                    steps = steps,
+                    onDismiss = { doNotShowAgain ->
+                        if (doNotShowAgain) {
+                            settingsManager.setFeatureInstructionDoNotShowAgain(targetKey, true)
+                        }
+                        activeInstructionFeature = null
+                    }
                 )
             }
         }
