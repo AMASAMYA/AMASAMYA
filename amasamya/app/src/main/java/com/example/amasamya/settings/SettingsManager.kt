@@ -48,6 +48,9 @@ class SettingsManager(context: Context) {
         const val CVD_DEUTERANOPIA = "Deuteranopia"
         const val CVD_TRITANOPIA = "Tritanopia"
         const val CVD_MONOCHROMACY = "Monochromacy"
+
+        const val POSITION_BOTTOM_LEFT = "Bottom Left (Nav Bar)"
+        const val POSITION_TOP_RIGHT = "Top Right (Edge Dock)"
     }
 
     private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -86,6 +89,12 @@ class SettingsManager(context: Context) {
         get() = prefs.getBoolean(KEY_FLOATING_BUTTON, true)
         set(value) {
             prefs.edit().putBoolean(KEY_FLOATING_BUTTON, value).apply()
+        }
+
+    var floatingButtonPosition: String
+        get() = prefs.getString("floating_button_position", POSITION_BOTTOM_LEFT) ?: POSITION_BOTTOM_LEFT
+        set(value) {
+            prefs.edit().putString("floating_button_position", value).apply()
         }
 
     var isAdbServerEnabled: Boolean

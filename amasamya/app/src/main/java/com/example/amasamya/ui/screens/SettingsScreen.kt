@@ -52,6 +52,7 @@ fun SettingsScreen(
     var audioFeedbackEnabled by remember { mutableStateOf(settingsManager.isAudioFeedbackEnabled) }
     var hapticFeedbackEnabled by remember { mutableStateOf(settingsManager.isHapticFeedbackEnabled) }
     var floatingButtonEnabled by remember { mutableStateOf(settingsManager.isFloatingButtonEnabled) }
+    var floatingButtonPosition by remember { mutableStateOf(settingsManager.floatingButtonPosition) }
     var adbServerEnabled by remember { mutableStateOf(settingsManager.isAdbServerEnabled) }
     var liveCaptionsEnabled by remember { mutableStateOf(settingsManager.isLiveCaptionsEnabled) }
     var liveFocusTrailEnabled by remember { mutableStateOf(settingsManager.isLiveFocusTrailEnabled) }
@@ -461,7 +462,7 @@ fun SettingsScreen(
                             fontSize = 16.sp
                         )
                         Text(
-                            text = "Show a floating scan button docked near the top-right screen edge (clear of keyboard & bottom bar). Automatically hides while typing. If disabled, use notification controls or voice commands.",
+                            text = "Show a floating scan button docked at the bottom-left navigation bar (opposite system Accessibility button) or upper-right screen edge. Automatically hides while typing.",
                             color = TextSecondary,
                             fontSize = 13.sp
                         )
@@ -477,6 +478,51 @@ fun SettingsScreen(
                             uncheckedTrackColor = Color(0xFF2C3246)
                         )
                     )
+                }
+
+                if (floatingButtonEnabled) {
+                    HorizontalDivider(color = Color(0xFF2C3246), thickness = 1.dp)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Docking Position",
+                                fontWeight = FontWeight.SemiBold,
+                                color = PureWhite,
+                                fontSize = 14.sp
+                            )
+                            Text(
+                                text = "Bottom-Left avoids collision with Android system Accessibility button on bottom-right.",
+                                color = TextSecondary,
+                                fontSize = 12.sp
+                            )
+                        }
+                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            FilterChip(
+                                selected = floatingButtonPosition == com.example.amasamya.settings.SettingsManager.POSITION_BOTTOM_LEFT,
+                                onClick = {
+                                    floatingButtonPosition = com.example.amasamya.settings.SettingsManager.POSITION_BOTTOM_LEFT
+                                    settingsManager.floatingButtonPosition = com.example.amasamya.settings.SettingsManager.POSITION_BOTTOM_LEFT
+                                    com.example.amasamya.service.A11yAuditService.instance?.updateAccessibilityButtonState(true)
+                                },
+                                label = { Text("Bottom Left", fontSize = 11.sp) }
+                            )
+                            FilterChip(
+                                selected = floatingButtonPosition == com.example.amasamya.settings.SettingsManager.POSITION_TOP_RIGHT,
+                                onClick = {
+                                    floatingButtonPosition = com.example.amasamya.settings.SettingsManager.POSITION_TOP_RIGHT
+                                    settingsManager.floatingButtonPosition = com.example.amasamya.settings.SettingsManager.POSITION_TOP_RIGHT
+                                    com.example.amasamya.service.A11yAuditService.instance?.updateAccessibilityButtonState(true)
+                                },
+                                label = { Text("Top Right", fontSize = 11.sp) }
+                            )
+                        }
+                    }
                 }
             }
 

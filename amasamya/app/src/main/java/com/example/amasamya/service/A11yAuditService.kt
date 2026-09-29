@@ -1398,9 +1398,15 @@ class A11yAuditService : AccessibilityService(), TextToSpeech.OnInitListener {
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
             PixelFormat.TRANSLUCENT
         ).apply {
-            gravity = Gravity.TOP or Gravity.END
-            x = (12 * density).toInt() // Docked near right border
-            y = (200 * density).toInt() // Upper-right edge offset (completely clear of keyboard & bottom navigation)
+            if (settingsManager.floatingButtonPosition == com.example.amasamya.settings.SettingsManager.POSITION_BOTTOM_LEFT) {
+                gravity = Gravity.BOTTOM or Gravity.START
+                x = (16 * density).toInt()
+                y = (80 * density).toInt() // Positioned at bottom-left navigation area, opposite to system Accessibility button
+            } else {
+                gravity = Gravity.TOP or Gravity.END
+                x = (12 * density).toInt()
+                y = (200 * density).toInt() // Upper-right edge offset
+            }
         }
         
         var isCollapsedToEdge = false
