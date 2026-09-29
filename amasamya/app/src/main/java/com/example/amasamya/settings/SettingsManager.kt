@@ -51,6 +51,9 @@ class SettingsManager(context: Context) {
 
         const val POSITION_BOTTOM_LEFT = "Bottom Left (Nav Bar)"
         const val POSITION_TOP_RIGHT = "Top Right (Edge Dock)"
+
+        const val MODE_NAV_BAR_NATIVE = "Native Navigation Bar Button"
+        const val MODE_CUSTOM_FLOATING = "Custom Floating Overlay"
     }
 
     private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -95,6 +98,12 @@ class SettingsManager(context: Context) {
         get() = prefs.getString("floating_button_position", POSITION_BOTTOM_LEFT) ?: POSITION_BOTTOM_LEFT
         set(value) {
             prefs.edit().putString("floating_button_position", value).apply()
+        }
+
+    var scanButtonType: String
+        get() = prefs.getString("scan_button_type", MODE_NAV_BAR_NATIVE) ?: MODE_NAV_BAR_NATIVE
+        set(value) {
+            prefs.edit().putString("scan_button_type", value).apply()
         }
 
     var isAdbServerEnabled: Boolean

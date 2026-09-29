@@ -549,7 +549,7 @@ class A11yAuditService : AccessibilityService(), TextToSpeech.OnInitListener {
     }
 
     fun updateAccessibilityButtonState(enabled: Boolean) {
-        if (enabled) {
+        if (enabled && settingsManager.scanButtonType == com.example.amasamya.settings.SettingsManager.MODE_CUSTOM_FLOATING) {
             showFloatingButton()
         } else {
             hideFloatingButton()
