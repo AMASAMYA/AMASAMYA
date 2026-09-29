@@ -457,13 +457,13 @@ fun SettingsScreen(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Show Scan Floating Button",
+                            text = "Show Scan Button",
                             fontWeight = FontWeight.SemiBold,
                             color = PureWhite,
                             fontSize = 16.sp
                         )
                         Text(
-                            text = "Show a floating scan button docked at the bottom-left navigation bar (opposite system Accessibility button) or upper-right screen edge. Automatically hides while typing.",
+                            text = "Displays a static audit scan button inside the bottom-left navigation bar row across all Android 10+ devices (opposite system Accessibility button). Automatically hides while typing.",
                             color = TextSecondary,
                             fontSize = 13.sp
                         )
