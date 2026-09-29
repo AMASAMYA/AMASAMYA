@@ -170,20 +170,34 @@ fun DashboardScreen(
                 }
             },
             confirmButton = {
-                TextButton(
+                Button(
                     onClick = {
                         showDisclosureDialog = false
                         val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
                         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                         context.startActivity(intent)
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = VibrantCyan,
+                        contentColor = DeepSpace
+                    ),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.semantics {
+                        role = Role.Button
+                        contentDescription = "Agree and open Android Accessibility Settings to enable AMASAMYA Service"
                     }
                 ) {
-                    Text("Enable Service", color = VibrantCyan)
+                    Text("Enable Service", fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
-                TextButton(
-                    onClick = { showDisclosureDialog = false }
+                OutlinedButton(
+                    onClick = { showDisclosureDialog = false },
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.semantics {
+                        role = Role.Button
+                        contentDescription = "Cancel and close disclosure dialog"
+                    }
                 ) {
                     Text("Cancel", color = NeonRed)
                 }
@@ -501,7 +515,11 @@ fun DashboardScreen(
                                     containerColor = NeonRed,
                                     contentColor = PureWhite
                                 ),
-                                shape = RoundedCornerShape(12.dp)
+                                shape = RoundedCornerShape(12.dp),
+                                modifier = Modifier.semantics {
+                                    role = Role.Button
+                                    contentDescription = "Open disclosure dialog to enable AMASAMYA Accessibility Service"
+                                }
                             ) {
                                 Text("Enable Service", fontWeight = FontWeight.Bold)
                             }
@@ -546,7 +564,11 @@ fun DashboardScreen(
                                     containerColor = NeonGreen,
                                     contentColor = DeepSpace
                                 ),
-                                shape = RoundedCornerShape(12.dp)
+                                shape = RoundedCornerShape(12.dp),
+                                modifier = Modifier.semantics {
+                                    role = Role.Button
+                                    contentDescription = "Open Android Accessibility Settings to disable or manage AMASAMYA Service"
+                                }
                             ) {
                                 Text("Disable / Manage Service", fontWeight = FontWeight.Bold)
                             }
