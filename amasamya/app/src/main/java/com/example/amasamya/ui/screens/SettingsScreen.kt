@@ -524,6 +524,29 @@ fun SettingsScreen(
                             )
                         }
 
+                        if (scanButtonType == com.example.amasamya.settings.SettingsManager.MODE_NAV_BAR_NATIVE) {
+                            Column(modifier = Modifier.fillMaxWidth().padding(top = 4.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Text(
+                                    text = "On Pixel & Stock Android (Android 10+): Android requires enabling the system Accessibility Button shortcut for AMASAMYA to display it directly inside the system navigation bar.",
+                                    color = TextSecondary,
+                                    fontSize = 12.sp
+                                )
+                                Button(
+                                    onClick = {
+                                        try {
+                                            context.startActivity(android.content.Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS))
+                                        } catch (e: Exception) {
+                                            e.printStackTrace()
+                                        }
+                                    },
+                                    colors = ButtonDefaults.buttonColors(containerColor = VibrantCyan, contentColor = DeepSpace),
+                                    shape = RoundedCornerShape(6.dp)
+                                ) {
+                                    Text("⚙️ Open System Accessibility Shortcut Settings", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                }
+                            }
+                        }
+
                         if (scanButtonType == com.example.amasamya.settings.SettingsManager.MODE_CUSTOM_FLOATING) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),

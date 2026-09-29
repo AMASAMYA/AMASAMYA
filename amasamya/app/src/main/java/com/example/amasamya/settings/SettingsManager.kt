@@ -101,7 +101,7 @@ class SettingsManager(context: Context) {
         }
 
     var scanButtonType: String
-        get() = prefs.getString("scan_button_type", MODE_NAV_BAR_NATIVE) ?: MODE_NAV_BAR_NATIVE
+        get() = prefs.getString("scan_button_type", MODE_CUSTOM_FLOATING) ?: MODE_CUSTOM_FLOATING
         set(value) {
             prefs.edit().putString("scan_button_type", value).apply()
         }
