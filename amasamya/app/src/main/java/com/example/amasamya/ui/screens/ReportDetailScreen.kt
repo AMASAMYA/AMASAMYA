@@ -86,21 +86,6 @@ fun ReportDetailScreen(
         val allFocusNodes = dbHelper.getFocusNodesForSession(sessionId)
         focusNodes = allFocusNodes
         screensWithFocusPaths = allFocusNodes.map { it.screenName }.distinct()
-        
-        val manager = context.getSystemService(Context.ACCESSIBILITY_SERVICE) as android.view.accessibility.AccessibilityManager
-        if (manager.isEnabled) {
-            try {
-                val event = android.view.accessibility.AccessibilityEvent.obtain(
-                    android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT
-                )
-                event.text.add("Report details screen loaded successfully")
-                event.className = "com.example.amasamya.ui.screens.ReportDetailScreen"
-                event.packageName = context.packageName
-                manager.sendAccessibilityEvent(event)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
     }
 
     val backgroundBrush = remember {

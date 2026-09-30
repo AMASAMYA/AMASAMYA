@@ -62,21 +62,6 @@ fun FocusPathScreen(
         }
         val allNodes = dbHelper.getFocusNodesForSession(sessionId)
         focusNodes = allNodes.filter { it.screenName == screenName }
-        
-        val manager = context.getSystemService(android.content.Context.ACCESSIBILITY_SERVICE) as android.view.accessibility.AccessibilityManager
-        if (manager.isEnabled) {
-            try {
-                val event = android.view.accessibility.AccessibilityEvent.obtain(
-                    android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT
-                )
-                event.text.add("Focus step path screen loaded successfully")
-                event.className = "com.example.amasamya.ui.screens.FocusPathScreen"
-                event.packageName = context.packageName
-                manager.sendAccessibilityEvent(event)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
     }
 
     val backgroundBrush = remember {

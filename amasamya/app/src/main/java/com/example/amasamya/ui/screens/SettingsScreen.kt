@@ -70,22 +70,7 @@ fun SettingsScreen(
     var showWalkthroughTour by remember { mutableStateOf(false) }
     var activeInstructionFeature by remember { mutableStateOf<String?>(null) }
 
-    LaunchedEffect(Unit) {
-        val manager = context.getSystemService(android.content.Context.ACCESSIBILITY_SERVICE) as android.view.accessibility.AccessibilityManager
-        if (manager.isEnabled) {
-            try {
-                val event = android.view.accessibility.AccessibilityEvent.obtain(
-                    android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT
-                )
-                event.text.add("Settings screen loaded successfully")
-                event.className = "com.example.amasamya.ui.screens.SettingsScreen"
-                event.packageName = context.packageName
-                manager.sendAccessibilityEvent(event)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
+
 
     val backgroundBrush = remember {
         Brush.verticalGradient(

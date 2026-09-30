@@ -1345,6 +1345,7 @@ class A11yAuditService : AccessibilityService(), TextToSpeech.OnInitListener {
             importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 isScreenReaderFocusable = true
+                accessibilityPaneTitle = "AMASAMYA Scan Button"
             }
             accessibilityDelegate = object : View.AccessibilityDelegate() {
                 override fun onInitializeAccessibilityNodeInfo(host: View, info: android.view.accessibility.AccessibilityNodeInfo) {
@@ -1353,20 +1354,27 @@ class A11yAuditService : AccessibilityService(), TextToSpeech.OnInitListener {
                     info.packageName = packageName
                     info.isClickable = true
                     info.isLongClickable = true
+                    info.isFocusable = true
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        info.isScreenReaderFocusable = true
+                        info.paneTitle = "AMASAMYA Scan Button"
+                    }
                     info.text = "AMASAMYA Scan"
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                         info.stateDescription = if (currentSessionId != null) "Recording: $currentSessionName" else "Ready"
                     }
+                    info.addAction(android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction.ACTION_ACCESSIBILITY_FOCUS)
+                    info.addAction(android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction.ACTION_CLEAR_ACCESSIBILITY_FOCUS)
                     info.addAction(
                         android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction(
                             android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK,
-                            "scan current screen"
+                            "scan current screen now"
                         )
                     )
                     info.addAction(
                         android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction(
                             android.view.accessibility.AccessibilityNodeInfo.ACTION_LONG_CLICK,
-                            "stop audit session"
+                            "stop active audit session"
                         )
                     )
                 }

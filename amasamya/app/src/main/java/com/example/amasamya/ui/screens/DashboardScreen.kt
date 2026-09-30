@@ -82,27 +82,6 @@ fun DashboardScreen(
         }
     }
 
-    // Delayed Welcome Announcement on Clean Launch
-    LaunchedEffect(Unit) {
-        if (!com.example.amasamya.MainActivity.hasAnnouncedLaunch) {
-            com.example.amasamya.MainActivity.hasAnnouncedLaunch = true
-            kotlinx.coroutines.delay(1000)
-            val manager = context.getSystemService(Context.ACCESSIBILITY_SERVICE) as android.view.accessibility.AccessibilityManager
-            if (manager.isEnabled) {
-                try {
-                    val event = android.view.accessibility.AccessibilityEvent.obtain(
-                        android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT
-                    )
-                    event.text.add("Welcome to AMASAMYA accessibility audit tool. Ready to start session.")
-                    event.className = "com.example.amasamya.MainActivity"
-                    event.packageName = context.packageName
-                    manager.sendAccessibilityEvent(event)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }
-        }
-    }
 
     // Service activity poll state
     var isServiceEnabled by remember { mutableStateOf(A11yAuditService.instance != null) }
@@ -373,22 +352,7 @@ fun DashboardScreen(
                 activeSessionName = A11yAuditService.instance?.getCurrentSessionName() ?: ""
                 sessions = dbHelper.getAllSessions()
                 
-                if (com.example.amasamya.MainActivity.hasAnnouncedLaunch) {
-                    val manager = context.getSystemService(Context.ACCESSIBILITY_SERVICE) as android.view.accessibility.AccessibilityManager
-                    if (manager.isEnabled) {
-                        try {
-                            val aEvent = android.view.accessibility.AccessibilityEvent.obtain(
-                                android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT
-                            )
-                            aEvent.text.add("AMASAMYA Dashboard loaded successfully")
-                            aEvent.className = "com.example.amasamya.MainActivity"
-                            aEvent.packageName = context.packageName
-                            manager.sendAccessibilityEvent(aEvent)
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
-                    }
-                }
+
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -821,7 +785,11 @@ fun DashboardScreen(
                                     focusedTextColor = PureWhite,
                                     unfocusedTextColor = PureWhite
                                 ),
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .semantics {
+                                        contentDescription = "Session Name. Example: Payment Flow Audit"
+                                    },
                                 shape = RoundedCornerShape(12.dp),
                                 singleLine = true
                             )

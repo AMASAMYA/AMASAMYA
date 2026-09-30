@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">AMASAMYA</string>
-    <string name="accessibility_service_description">AMASAMYA Accessibility Service. Enable or disable this service to allow AMASAMYA to run automated accessibility audits for touch target sizes, content labeling, visual contrast, reading order, and layout structures offline.</string>
-    <string name="accessibility_button_summary">Start or stop scanning the current screen for accessibility compliance audits</string>
+    <string name="accessibility_service_description">AMASAMYA Service. Turn on this service so AMASAMYA can check app screens for clear text, readable colors, button sizes, and easy screen reader navigation.</string>
+    <string name="accessibility_button_summary">Scan the current screen for readability and button sizes</string>
 </resources>

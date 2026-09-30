@@ -140,10 +140,7 @@ fun UserFeedbackDialog(
                     },
                     enabled = feedbackText.isNotBlank(),
                     colors = ButtonDefaults.buttonColors(containerColor = VibrantCyan, contentColor = DeepSpace),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.semantics {
-                        contentDescription = "Submit Feedback Button"
-                    }
+                    shape = RoundedCornerShape(8.dp)
                 ) {
                     Text("Submit Feedback via Email 📧", fontWeight = FontWeight.Bold)
                 }
