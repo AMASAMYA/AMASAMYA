@@ -1338,25 +1338,37 @@ class A11yAuditService : AccessibilityService(), TextToSpeech.OnInitListener {
         val container = FrameLayout(this).apply {
             background = shape
             elevation = 8 * density
-            contentDescription = "AMASAMYA Scan. Double tap to scan screen."
+            contentDescription = "AMASAMYA Scan"
             isFocusable = true
             isClickable = true
             isLongClickable = true
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                isScreenReaderFocusable = true
+            }
             accessibilityDelegate = object : View.AccessibilityDelegate() {
                 override fun onInitializeAccessibilityNodeInfo(host: View, info: android.view.accessibility.AccessibilityNodeInfo) {
                     super.onInitializeAccessibilityNodeInfo(host, info)
                     info.className = "android.widget.Button"
+                    info.packageName = packageName
                     info.isClickable = true
                     info.isLongClickable = true
-                    info.addAction(android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction.ACTION_CLICK)
-                    info.addAction(android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction.ACTION_LONG_CLICK)
+                    info.text = "AMASAMYA Scan"
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                        if (currentSessionId != null) {
-                            info.stateDescription = "Active session recording. Double tap to scan. Double tap and hold to stop session."
-                        } else {
-                            info.stateDescription = "Ready to start session. Double tap to start session."
-                        }
+                        info.stateDescription = if (currentSessionId != null) "Recording: $currentSessionName" else "Ready"
                     }
+                    info.addAction(
+                        android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction(
+                            android.view.accessibility.AccessibilityNodeInfo.ACTION_CLICK,
+                            "scan current screen"
+                        )
+                    )
+                    info.addAction(
+                        android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction(
+                            android.view.accessibility.AccessibilityNodeInfo.ACTION_LONG_CLICK,
+                            "stop audit session"
+                        )
+                    )
                 }
 
                 override fun performAccessibilityAction(host: View, action: Int, args: android.os.Bundle?): Boolean {
@@ -1395,9 +1407,10 @@ class A11yAuditService : AccessibilityService(), TextToSpeech.OnInitListener {
                 @Suppress("DEPRECATION")
                 WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY
             },
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
             PixelFormat.TRANSLUCENT
         ).apply {
+            title = "AMASAMYA Scan Button"
             if (settingsManager.floatingButtonPosition == com.example.amasamya.settings.SettingsManager.POSITION_TOP_RIGHT) {
                 gravity = Gravity.TOP or Gravity.END
                 x = (12 * density).toInt()

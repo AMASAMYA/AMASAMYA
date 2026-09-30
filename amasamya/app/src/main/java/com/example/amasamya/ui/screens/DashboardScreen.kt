@@ -183,8 +183,13 @@ fun DashboardScreen(
                     ),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.semantics {
-                        role = Role.Button
-                        contentDescription = "Agree and open Android Accessibility Settings to enable AMASAMYA Service"
+                        onClick(label = "open Accessibility Settings") {
+                            showDisclosureDialog = false
+                            val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            context.startActivity(intent)
+                            true
+                        }
                     }
                 ) {
                     Text("Enable Service", fontWeight = FontWeight.Bold)
@@ -195,8 +200,10 @@ fun DashboardScreen(
                     onClick = { showDisclosureDialog = false },
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.semantics {
-                        role = Role.Button
-                        contentDescription = "Cancel and close disclosure dialog"
+                        onClick(label = "close disclosure dialog") {
+                            showDisclosureDialog = false
+                            true
+                        }
                     }
                 ) {
                     Text("Cancel", color = NeonRed)
@@ -339,8 +346,10 @@ fun DashboardScreen(
                     ),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.semantics {
-                        role = Role.Button
-                        contentDescription = "Awesome, close whats new dialog"
+                        onClick(label = "close What's New dialog") {
+                            showWhatsNewDialog = false
+                            true
+                        }
                     }
                 ) {
                     Text("Awesome", fontWeight = FontWeight.Bold)
@@ -517,8 +526,10 @@ fun DashboardScreen(
                                 ),
                                 shape = RoundedCornerShape(12.dp),
                                 modifier = Modifier.semantics {
-                                    role = Role.Button
-                                    contentDescription = "Open disclosure dialog to enable AMASAMYA Accessibility Service"
+                                    onClick(label = "open permission disclosure dialog") {
+                                        showDisclosureDialog = true
+                                        true
+                                    }
                                 }
                             ) {
                                 Text("Enable Service", fontWeight = FontWeight.Bold)
@@ -566,8 +577,12 @@ fun DashboardScreen(
                                 ),
                                 shape = RoundedCornerShape(12.dp),
                                 modifier = Modifier.semantics {
-                                    role = Role.Button
-                                    contentDescription = "Open Android Accessibility Settings to disable or manage AMASAMYA Service"
+                                    onClick(label = "open Accessibility Settings to manage service") {
+                                        val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+                                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                        context.startActivity(intent)
+                                        true
+                                    }
                                 }
                             ) {
                                 Text("Disable / Manage Service", fontWeight = FontWeight.Bold)
@@ -796,8 +811,8 @@ fun DashboardScreen(
                             OutlinedTextField(
                                 value = sessionNameInput,
                                 onValueChange = { sessionNameInput = it },
-                                label = { Text("Session Name (e.g. Settings Page Audit)") },
-                                placeholder = { Text("Quick Audit") },
+                                label = { Text("Session Name") },
+                                placeholder = { Text("e.g. Payment Flow Audit") },
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedBorderColor = VibrantCyan,
                                     unfocusedBorderColor = LightGrey.copy(alpha = 0.5f),
@@ -806,11 +821,7 @@ fun DashboardScreen(
                                     focusedTextColor = PureWhite,
                                     unfocusedTextColor = PureWhite
                                 ),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .semantics {
-                                        contentDescription = "Session Name input field"
-                                    },
+                                modifier = Modifier.fillMaxWidth(),
                                 shape = RoundedCornerShape(12.dp),
                                 singleLine = true
                             )
@@ -835,13 +846,11 @@ fun DashboardScreen(
                                 shape = RoundedCornerShape(12.dp),
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .clearAndSetSemantics {
-                                        role = Role.Button
-                                        contentDescription = "Start New Session"
+                                    .semantics {
                                         if (!isServiceEnabled) {
                                             disabled()
                                         } else {
-                                            onClick(label = "Start a new audit session") {
+                                            onClick(label = "start audit session") {
                                                 val service = A11yAuditService.instance
                                                 if (service != null) {
                                                     val name = if (sessionNameInput.isBlank()) "Quick Audit" else sessionNameInput
@@ -884,7 +893,14 @@ fun DashboardScreen(
                                         contentColor = DeepSpace
                                     ),
                                     shape = RoundedCornerShape(12.dp),
-                                    modifier = Modifier.fillMaxWidth()
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .semantics {
+                                            onClick(label = "scan active screen now") {
+                                                A11yAuditService.instance?.performFullScreenScan()
+                                                true
+                                            }
+                                        }
                                 ) {
                                     Text("Scan Current Screen Now", fontWeight = FontWeight.Bold)
                                 }
@@ -901,7 +917,17 @@ fun DashboardScreen(
                                         contentColor = PureWhite
                                     ),
                                     shape = RoundedCornerShape(12.dp),
-                                    modifier = Modifier.fillMaxWidth()
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .semantics {
+                                            onClick(label = "stop and save audit session") {
+                                                A11yAuditService.instance?.stopAuditSession()
+                                                isSessionActive = false
+                                                activeSessionName = ""
+                                                sessionNameInput = ""
+                                                true
+                                            }
+                                        }
                                 ) {
                                     Text("Stop & Save Session", fontWeight = FontWeight.Bold)
                                 }
@@ -932,10 +958,8 @@ fun DashboardScreen(
                         contentPadding = PaddingValues(16.dp),
                         modifier = Modifier
                             .weight(1f)
-                            .clearAndSetSemantics {
-                                role = Role.Button
-                                contentDescription = "Reports. View saved compliance audit reports."
-                                onClick(label = "Open saved reports history") {
+                            .semantics {
+                                onClick(label = "open saved reports history") {
                                     onNavigate(History)
                                     true
                                 }
@@ -975,10 +999,8 @@ fun DashboardScreen(
                         contentPadding = PaddingValues(16.dp),
                         modifier = Modifier
                             .weight(1f)
-                            .clearAndSetSemantics {
-                                role = Role.Button
-                                contentDescription = "Settings. Configure accessibility parameters and audio preferences."
-                                onClick(label = "Open settings screen") {
+                            .semantics {
+                                onClick(label = "open settings screen") {
                                     onNavigate(SettingsRoute)
                                     true
                                 }
@@ -1021,10 +1043,8 @@ fun DashboardScreen(
                     contentPadding = PaddingValues(16.dp),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clearAndSetSemantics {
-                            role = Role.Button
-                            contentDescription = "DocRemediate Studio. Remediate inaccessible PDFs into 100% WCAG PDF/UA documents."
-                            onClick(label = "Open PDF Remediation Studio") {
+                        .semantics {
+                            onClick(label = "open PDF Remediation Studio") {
                                 onNavigate(com.example.amasamya.PdfRemediation)
                                 true
                             }
