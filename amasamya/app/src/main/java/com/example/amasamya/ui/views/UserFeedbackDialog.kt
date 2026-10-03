@@ -164,7 +164,8 @@ private fun sendFeedbackEmail(context: Context, userEmail: String, feedbackText:
             val body = StringBuilder()
             body.append("AMASAMYA User Feedback & Barrier Report\n\n")
             body.append("From Email: ").append(if (userEmail.isNotBlank()) userEmail else "Not provided").append("\n")
-            body.append("App Version: v1.4 (Build 19)\n")
+            val currentVersion = try { context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "2.5" } catch (e: Exception) { "2.5" }
+            body.append("App Version: v").append(currentVersion).append("\n")
             body.append("Device: ").append(android.os.Build.MANUFACTURER).append(" ").append(android.os.Build.MODEL).append(" (Android ").append(android.os.Build.VERSION.RELEASE).append(")\n\n")
             body.append("Feedback / Barrier Details:\n")
             body.append(feedbackText).append("\n\n")
